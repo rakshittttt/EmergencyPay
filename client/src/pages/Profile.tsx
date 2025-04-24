@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAppContext } from '@/context/AppContext';
+import { useLocation } from 'wouter';
 import StatusBar from '@/components/StatusBar';
 
 const Profile: React.FC = () => {
   const { currentUser, connectionStatus, isEmergencyMode, toggleEmergencyMode, reconcileTransactions } = useAppContext();
+  const [, navigate] = useLocation();
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -37,9 +39,12 @@ const Profile: React.FC = () => {
         throw new Error(errorData.message || 'Failed to update profile');
       }
       
-      // Successfully updated
-      window.location.reload(); // Simple way to refresh user data
+      // Successfully updated - don't reload the page, just hide the modal
+      // and use proper navigation to avoid duplicate notifications
       setShowEditProfile(false);
+      
+      // Manually refresh the page with navigation to avoid duplicate socket connections
+      navigate('/profile');
     } catch (error) {
       if (error instanceof Error) {
         window.alert(`Failed to update profile: ${error.message}`);
@@ -117,57 +122,7 @@ const Profile: React.FC = () => {
                   <p className="text-gray-500 text-sm">Top up your account</p>
                 </div>
                 <button 
-                  onClick={() => {
-                    if (!currentUser) return;
-                    
-                    // Show modal with payment methods
-                    const amount = prompt('Enter amount to add (₹):', '1000');
-                    if (!amount) return;
-                    
-                    const numAmount = parseFloat(amount);
-                    if (isNaN(numAmount) || numAmount <= 0) {
-                      window.alert('Please enter a valid amount');
-                      return;
-                    }
-                    
-                    // Choose payment method
-                    const paymentMethods = ['UPI', 'CARD', 'NETBANKING'];
-                    const method = prompt(`Choose payment method (1: UPI, 2: CARD, 3: NETBANKING):`, '1');
-                    
-                    if (!method || !['1', '2', '3'].includes(method)) {
-                      window.alert('Invalid payment method');
-                      return;
-                    }
-                    
-                    const selectedMethod = paymentMethods[parseInt(method) - 1] as 'UPI' | 'CARD' | 'NETBANKING';
-                    
-                    // Show processing message
-                    window.alert(`Processing payment of ₹${numAmount.toLocaleString('en-IN')} via ${selectedMethod}. Please wait...`);
-                    
-                    // Call the real banking API
-                    fetch(`/api/banking/add-funds`, {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        userId: currentUser.id,
-                        amount: numAmount,
-                        source: selectedMethod
-                      })
-                    })
-                    .then(response => response.json())
-                    .then(result => {
-                      if (result.success) {
-                        window.alert(`Transaction Successful: ${result.message}`);
-                      } else {
-                        window.alert(`Transaction Failed: ${result.message}`);
-                      }
-                    })
-                    .catch(error => {
-                      window.alert(`Error: ${error.message || 'Failed to process payment'}`);
-                    });
-                  }}
+                  onClick={() => navigate('/add-funds')}
                   className="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primary/90 transition-colors"
                 >
                   Add Funds

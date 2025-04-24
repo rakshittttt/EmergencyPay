@@ -8,6 +8,7 @@ import PaymentSuccess from "@/pages/PaymentSuccess";
 import TransactionHistory from "@/pages/TransactionHistory";
 import Merchants from "@/pages/Merchants";
 import Profile from "@/pages/Profile";
+import AddFunds from "@/pages/AddFunds";
 import NotFound from "@/pages/not-found";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useEffect, useState } from "react";
@@ -33,7 +34,8 @@ function App() {
     location.includes("/qr-scan") || 
     location.includes("/bluetooth-payment") || 
     location.includes("/payment-amount") || 
-    location.includes("/payment-success");
+    location.includes("/payment-success") ||
+    location.includes("/add-funds");
   
   return (
     <AppProvider>
@@ -49,6 +51,7 @@ function App() {
               <Route path="/transactions" component={TransactionHistory} />
               <Route path="/merchants" component={Merchants} />
               <Route path="/profile" component={Profile} />
+              <Route path="/add-funds" component={AddFunds} />
               <Route component={NotFound} />
             </Switch>
           </AnimatePresence>
