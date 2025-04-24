@@ -27,7 +27,10 @@ const Profile: React.FC = () => {
       <StatusBar />
       
       <div className="flex-1 overflow-auto scrollbar-hide pb-20">
-        <div className="bg-primary text-white py-8 px-4 rounded-b-3xl">
+        <div className="bg-primary text-white py-8 px-4 rounded-b-3xl relative">
+          <button className="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
+            <i className="ri-edit-line text-white"></i>
+          </button>
           <div className="flex justify-center mb-4">
             <div className="h-24 w-24 bg-white/20 rounded-full flex items-center justify-center">
               <i className="ri-user-fill text-4xl"></i>
@@ -67,7 +70,10 @@ const Profile: React.FC = () => {
                   <h4 className="font-medium">Add Money</h4>
                   <p className="text-gray-500 text-sm">Top up your account</p>
                 </div>
-                <button className="bg-primary text-white px-3 py-1 rounded-md">
+                <button 
+                  onClick={() => window.alert('Add Funds feature coming soon!')}
+                  className="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primary/90"
+                >
                   Add Funds
                 </button>
               </div>

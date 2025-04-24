@@ -10,27 +10,47 @@ const QRScan: React.FC = () => {
   const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
+    // Start scanning immediately when component mounts
+    setScanning(true);
+    
     // Simulate scanning
     let scanTimer: NodeJS.Timeout;
+    let scanInterval: NodeJS.Timeout;
     
     if (scanning) {
-      scanTimer = setTimeout(() => {
-        // Randomly pick a merchant
-        const randomIndex = Math.floor(Math.random() * merchants.length);
-        const randomMerchant = merchants[randomIndex];
+      // Simulate continuous scanning
+      scanInterval = setInterval(() => {
+        // Check for QR code (simulated)
+        const foundQR = Math.random() > 0.9; // 10% chance of finding QR per check
         
-        if (randomMerchant) {
-          selectMerchant(randomMerchant);
-          navigate(`/payment-amount/${randomMerchant.id}`);
+        if (foundQR) {
+          // Randomly pick a merchant
+          const randomIndex = Math.floor(Math.random() * merchants.length);
+          const randomMerchant = merchants[randomIndex];
+          
+          if (randomMerchant) {
+            selectMerchant(randomMerchant);
+            navigate(`/payment-amount/${randomMerchant.id}`);
+          }
         }
-      }, 3000);
+      }, 1000); // Check every second
     }
     
-    return () => clearTimeout(scanTimer);
+    return () => {
+      clearInterval(scanInterval);
+      clearTimeout(scanTimer);
+    };
   }, [scanning, merchants, navigate, selectMerchant]);
 
-  const startScanning = () => {
-    setScanning(true);
+  const selectFromGallery = () => {
+    // Simulate selecting from gallery
+    const randomIndex = Math.floor(Math.random() * merchants.length);
+    const randomMerchant = merchants[randomIndex];
+    
+    if (randomMerchant) {
+      selectMerchant(randomMerchant);
+      navigate(`/payment-amount/${randomMerchant.id}`);
+    }
   };
 
   const stopScanning = () => {
@@ -88,7 +108,10 @@ const QRScan: React.FC = () => {
         </div>
         <p className="text-white/80 text-center mb-4">Position the QR code within the frame to scan</p>
         <div className="flex space-x-4">
-          <button className="bg-white/10 text-white py-2 px-4 rounded-lg flex items-center">
+          <button 
+            onClick={selectFromGallery}
+            className="bg-white/10 text-white py-2 px-4 rounded-lg flex items-center hover:bg-white/20"
+          >
             <i className="ri-image-line mr-2"></i>
             Gallery
           </button>
@@ -101,14 +124,20 @@ const QRScan: React.FC = () => {
           </button>
         </div>
         
-        <motion.button
-          className="mt-8 bg-primary text-white py-3 px-8 rounded-lg font-medium"
-          onClick={startScanning}
-          whileTap={{ scale: 0.95 }}
-          disabled={scanning}
+        <motion.div
+          className="mt-8 text-center"
         >
-          {scanning ? 'Scanning...' : 'Start Scan'}
-        </motion.button>
+          <p className="text-white/80 mb-2">
+            {scanning ? 'Scanning in progress...' : 'Scan paused'}
+          </p>
+          <motion.button
+            className={`${scanning ? 'bg-red-500' : 'bg-primary'} text-white py-3 px-8 rounded-lg font-medium`}
+            onClick={() => setScanning(!scanning)}
+            whileTap={{ scale: 0.95 }}
+          >
+            {scanning ? 'Stop Scanning' : 'Resume Scan'}
+          </motion.button>
+        </motion.div>
       </div>
     </motion.div>
   );

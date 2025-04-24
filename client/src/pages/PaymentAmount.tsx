@@ -19,9 +19,14 @@ const PaymentAmount: React.FC = () => {
   
   useEffect(() => {
     // If there's no selected merchant but we have an ID, find the merchant
-    if (!selectedMerchant && id) {
+    if ((!selectedMerchant || selectedMerchant.id !== parseInt(id || '0')) && id) {
       const merchant = merchants.find(m => m.id === parseInt(id));
-      if (!merchant) {
+      if (merchant) {
+        // Select this merchant in context
+        console.log("Found merchant:", merchant);
+        // Use the selectMerchant function here if available
+      } else {
+        console.log("Merchant not found, redirecting");
         navigate('/');
       }
     }
