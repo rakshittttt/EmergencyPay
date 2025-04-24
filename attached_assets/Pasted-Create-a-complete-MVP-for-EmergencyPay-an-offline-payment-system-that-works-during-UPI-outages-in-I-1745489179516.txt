@@ -1,0 +1,49 @@
+Create a complete MVP for EmergencyPay, an offline payment system that works during UPI outages in India. The application should have the following components:
+
+## Core Functionality
+1. A Flutter mobile app with both merchant and customer interfaces
+2. Offline transaction capability using Bluetooth Low Energy for device-to-device payments
+3. SQLite3 database for local transaction storage and synchronization
+4. Digital signature implementation for transaction verification without internet
+5. Simulated reconciliation process when connectivity is restored
+
+## Technical Requirements
+1. Use Flutter for cross-platform mobile development
+2. Implement SQLite3 for local database storage
+3. Use the flutter_bluetooth_serial package for device communication
+4. Implement ED25519 cryptography for lightweight digital signatures
+5. Create a simple, intuitive UI that resembles familiar UPI apps
+
+## Specific Features
+1. User registration and wallet setup (simplified for MVP)
+2. QR code generation and scanning for payment initiation
+3. Bluetooth device discovery and pairing
+4. Transaction signing and verification without internet
+5. Local transaction history with pending/completed status
+6. Mock reconciliation with a simulated central server
+7. Emergency mode toggle that activates offline capabilities
+8. Essential service merchant flagging (medical, food, transport)
+
+## Database Schema
+Design SQLite3 tables for:
+1. Users (id, name, phone, public_key, private_key)
+2. Transactions (id, sender_id, receiver_id, amount, timestamp, signature, status)
+3. Merchants (id, name, category, is_essential_service)
+4. Pending_sync (transaction_id, retry_count, last_attempt)
+
+## UI Requirements
+1. Clean, minimal interface with clear status indicators
+2. Prominent display of offline/online status
+3. Emergency mode activation button
+4. Transaction history with clear pending/completed status
+5. Simple merchant registration flow
+6. QR code display and scanner
+
+## Testing Scenarios
+Include functionality to simulate:
+1. Complete internet outage
+2. UPI service outage with internet working
+3. Delayed transaction settlement
+4. Multiple device transaction propagation
+
+Provide complete, working code with detailed comments explaining the implementation. The MVP should be demonstrable within a hackathon setting and clearly show how transactions can occur without internet connectivity.
