@@ -12,6 +12,8 @@ import NotFound from "@/pages/not-found";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useEffect, useState } from "react";
 import { AppProvider } from "@/context/AppContext";
+import { initializeSocket } from "@/lib/socket";
+import { Toaster } from "@/components/ui/toaster";
 
 function App() {
   const [location] = useLocation();
@@ -20,6 +22,11 @@ function App() {
   useEffect(() => {
     setCurrentRoute(location);
   }, [location]);
+  
+  // Initialize real-time updates with Socket.IO
+  useEffect(() => {
+    initializeSocket();
+  }, []);
   
   // Check if we're in a payment flow to determine whether to show bottom nav
   const isPaymentFlow = 
@@ -48,6 +55,7 @@ function App() {
         </div>
         
         {!isPaymentFlow && <BottomNavigation />}
+        <Toaster />
       </div>
     </AppProvider>
   );

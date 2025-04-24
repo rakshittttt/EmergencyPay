@@ -119,7 +119,8 @@ const Profile: React.FC = () => {
                 <button 
                   onClick={() => {
                     if (!currentUser) return;
-                    // Simple demo of adding funds
+                    
+                    // Show modal with payment methods
                     const amount = prompt('Enter amount to add (₹):', '1000');
                     if (!amount) return;
                     
@@ -129,26 +130,42 @@ const Profile: React.FC = () => {
                       return;
                     }
                     
-                    // For demo purposes, we'll just update the user's balance directly
-                    // In a real app, this would go through a payment gateway
-                    const newBalance = (parseFloat(currentUser.balance) + numAmount).toString();
+                    // Choose payment method
+                    const paymentMethods = ['UPI', 'CARD', 'NETBANKING'];
+                    const method = prompt(`Choose payment method (1: UPI, 2: CARD, 3: NETBANKING):`, '1');
                     
-                    fetch(`/api/users/${currentUser.id}`, {
-                      method: 'PATCH',
+                    if (!method || !['1', '2', '3'].includes(method)) {
+                      window.alert('Invalid payment method');
+                      return;
+                    }
+                    
+                    const selectedMethod = paymentMethods[parseInt(method) - 1] as 'UPI' | 'CARD' | 'NETBANKING';
+                    
+                    // Show processing message
+                    window.alert(`Processing payment of ₹${numAmount.toLocaleString('en-IN')} via ${selectedMethod}. Please wait...`);
+                    
+                    // Call the real banking API
+                    fetch(`/api/banking/add-funds`, {
+                      method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
                       },
                       body: JSON.stringify({
-                        balance: newBalance
+                        userId: currentUser.id,
+                        amount: numAmount,
+                        source: selectedMethod
                       })
                     })
-                    .then(response => {
-                      if (!response.ok) throw new Error('Failed to add funds');
-                      window.alert(`Successfully added ₹${numAmount.toLocaleString('en-IN')} to your account`);
-                      window.location.reload();
+                    .then(response => response.json())
+                    .then(result => {
+                      if (result.success) {
+                        window.alert(`Transaction Successful: ${result.message}`);
+                      } else {
+                        window.alert(`Transaction Failed: ${result.message}`);
+                      }
                     })
                     .catch(error => {
-                      window.alert(error.message || 'Failed to add funds');
+                      window.alert(`Error: ${error.message || 'Failed to process payment'}`);
                     });
                   }}
                   className="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primary/90 transition-colors"
