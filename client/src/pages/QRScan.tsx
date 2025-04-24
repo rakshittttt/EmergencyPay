@@ -43,6 +43,9 @@ const QRScan: React.FC = () => {
   }, [scanning, merchants, navigate, selectMerchant]);
 
   const selectFromGallery = () => {
+    // Show gallery access message first
+    window.alert('In a real app, this would open your photo gallery to select a QR code image. Currently simulating selection from gallery.');
+    
     // Simulate selecting from gallery
     const randomIndex = Math.floor(Math.random() * merchants.length);
     const randomMerchant = merchants[randomIndex];
@@ -59,6 +62,10 @@ const QRScan: React.FC = () => {
   };
 
   const toggleFlash = () => {
+    // Show a message for first time use
+    if (!flashOn) {
+      window.alert('In a real app, this would turn on your device flashlight to help scan in low light. The flashlight status is currently simulated.');
+    }
     setFlashOn(!flashOn);
   };
 
@@ -107,6 +114,11 @@ const QRScan: React.FC = () => {
           </div>
         </div>
         <p className="text-white/80 text-center mb-4">Position the QR code within the frame to scan</p>
+        <div className="bg-blue-500/20 rounded-lg p-3 mb-4 max-w-xs mx-auto">
+          <p className="text-white/90 text-sm text-center">
+            This is a simulated scanner that will randomly detect a merchant after a few seconds. In a real app, this would use your device's camera.
+          </p>
+        </div>
         <div className="flex space-x-4">
           <button 
             onClick={selectFromGallery}

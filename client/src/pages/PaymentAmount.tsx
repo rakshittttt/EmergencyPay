@@ -11,6 +11,7 @@ const PaymentAmount: React.FC = () => {
     connectionStatus, 
     isEmergencyMode, 
     selectedMerchant,
+    selectMerchant,
     initiatePayment
   } = useAppContext();
   
