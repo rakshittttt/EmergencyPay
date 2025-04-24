@@ -55,7 +55,7 @@ const EmergencyToggle: React.FC = () => {
                 <i className="ri-alarm-warning-fill text-6xl"></i>
               </div>
               <h2 className="text-2xl font-bold mb-2">Activate Emergency Mode?</h2>
-              <p className="mb-8">This mode enables offline payments when UPI services are down. Transactions will be synced when network is restored.</p>
+              <p className="bg-black/30 py-3 px-4 rounded-lg mb-8">This mode enables offline payments when UPI services are down. Transactions will be synced when network is restored.</p>
               <div className="flex space-x-4">
                 <button 
                   onClick={handleCancel}

@@ -53,11 +53,18 @@ const BluetoothPayment: React.FC = () => {
       
       <div className="flex-1 overflow-auto scrollbar-hide">
         <div className="px-4 py-6 border-b border-gray-200">
-          <div className="bg-amber-50 rounded-lg p-4 flex items-start">
+          <div className="bg-amber-50 rounded-lg p-4 flex items-start mb-3">
             <i className="ri-information-line text-amber-500 mt-0.5 mr-3 text-lg"></i>
             <div>
               <h3 className="font-medium text-amber-700">Emergency Mode Active</h3>
               <p className="text-sm text-amber-700/80">You can make payments using Bluetooth when UPI services are down.</p>
+            </div>
+          </div>
+          <div className="bg-blue-50 rounded-lg p-4 flex items-start">
+            <i className="ri-information-line text-blue-500 mt-0.5 mr-3 text-lg"></i>
+            <div>
+              <h3 className="font-medium text-blue-700">Simulated Functionality</h3>
+              <p className="text-sm text-blue-700/80">This is a simulated demonstration of Bluetooth functionality. In a real application, this would use your device's Bluetooth hardware to discover nearby merchants.</p>
             </div>
           </div>
         </div>

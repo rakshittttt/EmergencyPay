@@ -19,7 +19,7 @@ const Profile: React.FC = () => {
 
   const handleSaveProfile = () => {
     // Here we would normally send an API request to update the profile
-    window.alert('Profile update functionality will be available soon!');
+    window.alert('Profile update functionality will be available in future updates. This feature will allow you to update your name and phone number, which will be stored securely in our database.');
     setShowEditProfile(false);
   };
 
@@ -91,8 +91,8 @@ const Profile: React.FC = () => {
                   <p className="text-gray-500 text-sm">Top up your account</p>
                 </div>
                 <button 
-                  onClick={() => window.alert('Add Funds feature coming soon!')}
-                  className="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primary/90"
+                  onClick={() => window.alert('Add Funds feature will be available in future updates. This feature will allow you to add money to your account using UPI, credit/debit cards, or bank transfer.')}
+                  className="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primary/90 transition-colors"
                 >
                   Add Funds
                 </button>
@@ -163,23 +163,38 @@ const Profile: React.FC = () => {
           </div>
           
           <div className="bg-white rounded-lg shadow-sm mb-6">
-            <div className="p-4 border-b flex items-center">
+            <button 
+              onClick={() => window.alert('Security settings will be available in future updates.')}
+              className="p-4 border-b flex items-center w-full text-left hover:bg-gray-50"
+            >
               <i className="ri-shield-keyhole-line text-gray-600 mr-3"></i>
               <span>Security Settings</span>
-            </div>
+              <i className="ri-arrow-right-s-line text-gray-400 ml-auto"></i>
+            </button>
             
-            <div className="p-4 border-b flex items-center">
+            <button 
+              onClick={() => window.alert('Notification preferences will be available in future updates.')}
+              className="p-4 border-b flex items-center w-full text-left hover:bg-gray-50"
+            >
               <i className="ri-notification-3-line text-gray-600 mr-3"></i>
               <span>Notifications</span>
-            </div>
+              <i className="ri-arrow-right-s-line text-gray-400 ml-auto"></i>
+            </button>
             
-            <div className="p-4 flex items-center">
+            <button 
+              onClick={() => window.alert('Help & Support features will be available in future updates.')}
+              className="p-4 flex items-center w-full text-left hover:bg-gray-50"
+            >
               <i className="ri-question-line text-gray-600 mr-3"></i>
               <span>Help & Support</span>
-            </div>
+              <i className="ri-arrow-right-s-line text-gray-400 ml-auto"></i>
+            </button>
           </div>
           
-          <button className="w-full bg-gray-100 text-gray-600 py-3 rounded-lg font-medium mb-8">
+          <button 
+            onClick={() => window.alert('Sign out functionality will be available in future updates.')}
+            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 py-3 rounded-lg font-medium mb-8 transition-colors"
+          >
             Sign Out
           </button>
         </div>
