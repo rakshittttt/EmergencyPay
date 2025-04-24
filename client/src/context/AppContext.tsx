@@ -116,27 +116,68 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   ];
 
   // Toggle emergency mode
-  const toggleEmergencyMode = useCallback(() => {
-    setIsEmergencyMode(prev => {
-      const newValue = !prev;
+  const toggleEmergencyMode = useCallback(async () => {
+    if (!currentUser) return;
+    
+    try {
+      const newValue = !isEmergencyMode;
+      
       if (newValue) {
+        // Move some money from regular balance to emergency balance
+        if (parseFloat(currentUser.balance) < 1000) {
+          showToast({
+            title: "Insufficient Balance",
+            description: "You need at least ₹1,000 to activate Emergency Mode",
+            variant: "destructive",
+          });
+          return;
+        }
+        
         setConnectionStatus('emergency');
+        
+        // Update balances in the database
+        const emergencyAmount = 1000;
+        const newBalance = (parseFloat(currentUser.balance) - emergencyAmount).toString();
+        const newEmergencyBalance = (parseFloat(currentUser.emergency_balance) + emergencyAmount).toString();
+        
+        await fetch(`/api/users/${currentUser.id}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            balance: newBalance,
+            emergency_balance: newEmergencyBalance
+          })
+        });
+        
         showToast({
           title: "Emergency Mode Activated",
-          description: "You can now make offline payments via Bluetooth",
+          description: `₹${emergencyAmount.toLocaleString('en-IN')} transferred to emergency balance`,
           variant: "destructive",
           duration: 5000,
         });
       } else {
+        // Return to online mode
         setConnectionStatus('online');
+        
+        // We don't auto-transfer back from emergency to regular
+        // In a real app, emergency funds would remain reserved until reconciled
         showToast({
           title: "Emergency Mode Deactivated",
           description: "Returned to normal payment mode",
         });
       }
-      return newValue;
-    });
-  }, []);
+      
+      setIsEmergencyMode(newValue);
+    } catch (error) {
+      showToast({
+        title: "Error",
+        description: "Failed to toggle emergency mode",
+        variant: "destructive",
+      });
+    }
+  }, [currentUser, isEmergencyMode]);
 
   // Simulate connection status changes
   useEffect(() => {

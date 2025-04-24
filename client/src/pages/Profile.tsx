@@ -17,10 +17,36 @@ const Profile: React.FC = () => {
     setShowEditProfile(true);
   };
 
-  const handleSaveProfile = () => {
-    // Here we would normally send an API request to update the profile
-    window.alert('Profile update functionality will be available in future updates. This feature will allow you to update your name and phone number, which will be stored securely in our database.');
-    setShowEditProfile(false);
+  const handleSaveProfile = async () => {
+    if (!currentUser) return;
+    
+    try {
+      const response = await fetch(`/api/users/${currentUser.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name,
+          phone
+        })
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update profile');
+      }
+      
+      // Successfully updated
+      window.location.reload(); // Simple way to refresh user data
+      setShowEditProfile(false);
+    } catch (error) {
+      if (error instanceof Error) {
+        window.alert(`Failed to update profile: ${error.message}`);
+      } else {
+        window.alert('Failed to update profile.');
+      }
+    }
   };
 
   if (!currentUser) {
@@ -91,7 +117,40 @@ const Profile: React.FC = () => {
                   <p className="text-gray-500 text-sm">Top up your account</p>
                 </div>
                 <button 
-                  onClick={() => window.alert('Add Funds feature will be available in future updates. This feature will allow you to add money to your account using UPI, credit/debit cards, or bank transfer.')}
+                  onClick={() => {
+                    if (!currentUser) return;
+                    // Simple demo of adding funds
+                    const amount = prompt('Enter amount to add (₹):', '1000');
+                    if (!amount) return;
+                    
+                    const numAmount = parseFloat(amount);
+                    if (isNaN(numAmount) || numAmount <= 0) {
+                      window.alert('Please enter a valid amount');
+                      return;
+                    }
+                    
+                    // For demo purposes, we'll just update the user's balance directly
+                    // In a real app, this would go through a payment gateway
+                    const newBalance = (parseFloat(currentUser.balance) + numAmount).toString();
+                    
+                    fetch(`/api/users/${currentUser.id}`, {
+                      method: 'PATCH',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        balance: newBalance
+                      })
+                    })
+                    .then(response => {
+                      if (!response.ok) throw new Error('Failed to add funds');
+                      window.alert(`Successfully added ₹${numAmount.toLocaleString('en-IN')} to your account`);
+                      window.location.reload();
+                    })
+                    .catch(error => {
+                      window.alert(error.message || 'Failed to add funds');
+                    });
+                  }}
                   className="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primary/90 transition-colors"
                 >
                   Add Funds

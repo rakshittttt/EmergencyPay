@@ -185,6 +185,49 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to create user" });
     }
   });
+  
+  // Update user profile
+  apiRouter.patch("/users/:id", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Validate input
+      const updateSchema = z.object({
+        name: z.string().min(1).optional(),
+        phone: z.string().min(10).max(15).optional(),
+        balance: z.string().optional(),
+        emergency_balance: z.string().optional()
+      });
+      
+      const updateData = updateSchema.parse(req.body);
+      
+      // If updating phone, check if it's already taken
+      if (updateData.phone) {
+        const existingUser = await storage.getUserByPhone(updateData.phone);
+        if (existingUser && existingUser.id !== userId) {
+          return res.status(409).json({ message: "Phone number is already in use" });
+        }
+      }
+      
+      // Update user
+      const user = await storage.updateUser(userId, updateData);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Don't return the private key
+      const { private_key, ...safeUser } = user;
+      res.json(safeUser);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid update data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
 
   return httpServer;
 }
