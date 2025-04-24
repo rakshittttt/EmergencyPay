@@ -1,10 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAppContext } from '@/context/AppContext';
 import StatusBar from '@/components/StatusBar';
 
 const Profile: React.FC = () => {
   const { currentUser, connectionStatus, isEmergencyMode, toggleEmergencyMode, reconcileTransactions } = useAppContext();
+  const [showEditProfile, setShowEditProfile] = useState(false);
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+
+  const handleEditProfile = () => {
+    if (currentUser) {
+      setName(currentUser.name);
+      setPhone(currentUser.phone);
+    }
+    setShowEditProfile(true);
+  };
+
+  const handleSaveProfile = () => {
+    // Here we would normally send an API request to update the profile
+    window.alert('Profile update functionality will be available soon!');
+    setShowEditProfile(false);
+  };
 
   if (!currentUser) {
     return (
@@ -28,7 +45,10 @@ const Profile: React.FC = () => {
       
       <div className="flex-1 overflow-auto scrollbar-hide pb-20">
         <div className="bg-primary text-white py-8 px-4 rounded-b-3xl relative">
-          <button className="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/20 flex items-center justify-center">
+          <button 
+            onClick={handleEditProfile}
+            className="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30"
+          >
             <i className="ri-edit-line text-white"></i>
           </button>
           <div className="flex justify-center mb-4">
@@ -164,6 +184,62 @@ const Profile: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      {showEditProfile && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <motion.div 
+            className="bg-white rounded-lg w-full max-w-sm"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="p-4 border-b">
+              <h3 className="text-lg font-medium">Edit Profile</h3>
+            </div>
+            <div className="p-4">
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-medium mb-2">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full p-2 border rounded-md"
+                  placeholder="Your name"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-gray-700 text-sm font-medium mb-2">
+                  Phone Number
+                </label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full p-2 border rounded-md"
+                  placeholder="Your phone number"
+                />
+              </div>
+            </div>
+            <div className="p-4 border-t flex justify-end space-x-3">
+              <button 
+                onClick={() => setShowEditProfile(false)}
+                className="px-4 py-2 bg-gray-200 rounded-md"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSaveProfile}
+                className="px-4 py-2 bg-primary text-white rounded-md"
+              >
+                Save
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 };

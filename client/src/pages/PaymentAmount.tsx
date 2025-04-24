@@ -23,14 +23,14 @@ const PaymentAmount: React.FC = () => {
       const merchant = merchants.find(m => m.id === parseInt(id));
       if (merchant) {
         // Select this merchant in context
-        console.log("Found merchant:", merchant);
-        // Use the selectMerchant function here if available
+        console.log("Found merchant, selecting:", merchant);
+        selectMerchant(merchant);
       } else {
         console.log("Merchant not found, redirecting");
         navigate('/');
       }
     }
-  }, [selectedMerchant, id, merchants, navigate]);
+  }, [selectedMerchant, id, merchants, navigate, selectMerchant]);
   
   const handleGoBack = () => {
     navigate('/');
