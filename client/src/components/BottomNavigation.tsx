@@ -17,9 +17,12 @@ const BottomNavigation: React.FC = () => {
       <div className="flex justify-around">
         {navItems.map((item) => (
           <Link key={item.path} href={item.path}>
-            <a className={`flex flex-col items-center justify-center py-1 px-3 ${
-              location === item.path ? 'text-primary' : 'text-gray-500'
-            }`}>
+            <motion.div 
+              className={`flex flex-col items-center justify-center py-1 px-3 ${
+                location === item.path ? 'text-primary' : 'text-gray-500'
+              }`}
+              whileTap={{ scale: 0.95 }}
+            >
               <i className={`${item.icon} text-xl`}></i>
               <span className="text-xs mt-1">{item.label}</span>
               {location === item.path && (
@@ -29,7 +32,7 @@ const BottomNavigation: React.FC = () => {
                   transition={{ type: 'spring', duration: 0.3 }}
                 />
               )}
-            </a>
+            </motion.div>
           </Link>
         ))}
       </div>

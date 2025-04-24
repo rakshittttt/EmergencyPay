@@ -52,17 +52,24 @@ const StatusBar: React.FC = () => {
     <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white">
       <div className="flex items-center space-x-2">
         <div className="flex items-center">
-          <span className="inline-flex relative">
+          <span className="inline-flex relative mr-1">
             <motion.span 
-              className={`h-2.5 w-2.5 rounded-full ${getStatusColor()}`}
+              className={`h-3 w-3 rounded-full ${getStatusColor()}`}
               animate={{ scale: [1, 1.2, 1] }}
               transition={{ duration: 2, repeat: Infinity }}
             />
             {connectionStatus === 'online' && (
               <motion.span 
-                className="absolute h-2.5 w-2.5 rounded-full bg-green-400 opacity-75"
-                animate={{ scale: [1, 1.5, 1] }}
+                className="absolute inset-0 h-3 w-3 rounded-full bg-green-400 opacity-75"
+                animate={{ scale: [1, 2, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
+              />
+            )}
+            {connectionStatus === 'online' && (
+              <motion.span 
+                className="absolute inset-0 h-3 w-3 rounded-full bg-green-300 opacity-40"
+                animate={{ scale: [1, 2.5, 1] }}
+                transition={{ duration: 2.5, repeat: Infinity }}
               />
             )}
           </span>

@@ -103,7 +103,12 @@ const Home: React.FC = () => {
         <div className="px-4 pb-24">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">Recent Transactions</h3>
-            <button className="text-primary text-sm" onClick={() => window.location.href = '/transactions'}>
+            <button 
+              className="text-primary text-sm"
+              onClick={() => {
+                window.location.href = '/transactions';
+              }}
+            >
               See All
             </button>
           </div>
