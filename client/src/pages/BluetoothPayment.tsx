@@ -1,8 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { useAppContext } from '@/context/AppContext';
 import MerchantItem from '@/components/MerchantItem';
+import { toast } from '@/hooks/use-toast';
 
 const BluetoothPayment: React.FC = () => {
   const [, navigate] = useLocation();
@@ -12,24 +13,136 @@ const BluetoothPayment: React.FC = () => {
     stopDeviceDiscovery,
     isScanning,
     discoveredDevices,
-    selectMerchant
+    selectMerchant,
+    connectionStatus,
+    currentUser
   } = useAppContext();
 
+  // Track connection and payment state
+  const [connecting, setConnecting] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  
   useEffect(() => {
     // Start scanning when component mounts
     startDeviceDiscovery();
     
+    // Notify user about emergency mode
+    if (isEmergencyMode && connectionStatus === 'emergency') {
+      toast({
+        title: 'Emergency Mode Active',
+        description: 'You can make offline payments via Bluetooth',
+        variant: 'default',
+      });
+    }
+    
     // Stop scanning when component unmounts
     return () => stopDeviceDiscovery();
-  }, [startDeviceDiscovery, stopDeviceDiscovery]);
+  }, [startDeviceDiscovery, stopDeviceDiscovery, isEmergencyMode, connectionStatus]);
 
   const handleGoBack = () => {
     navigate('/');
   };
 
-  const handleConnect = (merchant: typeof discoveredDevices[0]) => {
-    selectMerchant(merchant);
-    navigate(`/payment-amount/${merchant.id}`);
+  // Function to perform payment directly via banking API
+  const performBluetoothPayment = async (merchantId: number, amount: number) => {
+    if (!currentUser) return null;
+    
+    setPaymentProcessing(true);
+    
+    try {
+      const response = await fetch('/api/banking/emergency-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          senderId: currentUser.id,
+          receiverId: merchantId,
+          amount: amount.toString(),
+          method: 'BLUETOOTH'
+        })
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        toast({
+          title: 'Payment Successful',
+          description: `Paid ₹${amount} via Bluetooth in emergency mode`,
+          variant: 'default',
+        });
+        return result;
+      } else {
+        toast({
+          title: 'Payment Failed',
+          description: result.message || 'Failed to process payment',
+          variant: 'destructive',
+        });
+        return null;
+      }
+    } catch (error) {
+      console.error('Bluetooth payment error:', error);
+      toast({
+        title: 'Payment Error',
+        description: 'An unexpected error occurred',
+        variant: 'destructive',
+      });
+      return null;
+    } finally {
+      setPaymentProcessing(false);
+    }
+  };
+  
+  const handleConnect = async (merchant: typeof discoveredDevices[0]) => {
+    if (!currentUser) {
+      toast({
+        title: 'Error',
+        description: 'You must be logged in to make payments',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    // Check if emergency mode is active
+    if (!isEmergencyMode || connectionStatus !== 'emergency') {
+      toast({
+        title: 'Emergency Mode Required',
+        description: 'Enable emergency mode in your profile to make offline payments',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    // Check if user has sufficient emergency balance
+    if (parseFloat(currentUser.emergency_balance) <= 0) {
+      toast({
+        title: 'Insufficient Emergency Balance',
+        description: 'Please add funds to your emergency balance to make offline payments',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    setConnecting(true);
+    
+    try {
+      toast({
+        title: 'Connecting',
+        description: `Connecting to ${merchant.name}...`,
+      });
+      
+      // Continue with navigation to payment amount
+      selectMerchant(merchant);
+      navigate(`/payment-amount/${merchant.id}`);
+    } catch (error) {
+      toast({
+        title: 'Connection Failed',
+        description: 'Unable to connect to merchant. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setConnecting(false);
+    }
   };
 
   return (
@@ -53,6 +166,21 @@ const BluetoothPayment: React.FC = () => {
       
       <div className="flex-1 overflow-auto scrollbar-hide">
         <div className="px-4 py-6 border-b border-gray-200">
+          {/* Emergency Balance Card */}
+          {currentUser && (
+            <div className="bg-primary-50 rounded-lg p-4 flex justify-between items-center mb-3">
+              <div>
+                <h3 className="font-medium text-primary-800">Emergency Balance</h3>
+                <p className="text-2xl font-semibold text-primary-700">
+                  ₹{parseFloat(currentUser.emergency_balance).toLocaleString('en-IN')}
+                </p>
+              </div>
+              <div className="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
+                <i className="ri-wallet-3-line text-primary text-xl"></i>
+              </div>
+            </div>
+          )}
+          
           <div className="bg-amber-50 rounded-lg p-4 flex items-start mb-3">
             <i className="ri-information-line text-amber-500 mt-0.5 mr-3 text-lg"></i>
             <div>
@@ -60,13 +188,23 @@ const BluetoothPayment: React.FC = () => {
               <p className="text-sm text-amber-700/80">You can make payments using Bluetooth when UPI services are down.</p>
             </div>
           </div>
-          <div className="bg-blue-50 rounded-lg p-4 flex items-start">
-            <i className="ri-information-line text-blue-500 mt-0.5 mr-3 text-lg"></i>
-            <div>
-              <h3 className="font-medium text-blue-700">Simulated Functionality</h3>
-              <p className="text-sm text-blue-700/80">This is a simulated demonstration of Bluetooth functionality. In a real application, this would use your device's Bluetooth hardware to discover nearby merchants.</p>
+          
+          {connecting || paymentProcessing ? (
+            <div className="bg-blue-50 rounded-lg p-4 flex items-center mb-3">
+              <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-3"></div>
+              <p className="text-blue-700">
+                {connecting ? 'Connecting to merchant...' : 'Processing payment...'}
+              </p>
             </div>
-          </div>
+          ) : (
+            <div className="bg-blue-50 rounded-lg p-4 flex items-start">
+              <i className="ri-information-line text-blue-500 mt-0.5 mr-3 text-lg"></i>
+              <div>
+                <h3 className="font-medium text-blue-700">Simulated Functionality</h3>
+                <p className="text-sm text-blue-700/80">This is a simulated demonstration of Bluetooth functionality. In a real application, this would use your device's Bluetooth hardware to discover nearby merchants.</p>
+              </div>
+            </div>
+          )}
         </div>
         
         <div className="p-4 text-center">
