@@ -12,7 +12,7 @@ interface QuickActionButtonProps {
 const QuickActionButton: React.FC<QuickActionButtonProps> = ({ icon, label, path, delay = 0 }) => {
   return (
     <Link href={path}>
-      <motion.a
+      <motion.div
         className="flex flex-col items-center justify-center cursor-pointer"
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -23,7 +23,7 @@ const QuickActionButton: React.FC<QuickActionButtonProps> = ({ icon, label, path
           <i className={`${icon} text-2xl text-primary`}></i>
         </div>
         <span className="text-xs text-gray-700">{label}</span>
-      </motion.a>
+      </motion.div>
     </Link>
   );
 };

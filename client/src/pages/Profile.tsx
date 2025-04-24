@@ -100,16 +100,21 @@ const Profile: React.FC = () => {
                 <h4 className="font-medium">Emergency Mode</h4>
                 <p className="text-gray-500 text-sm">Enable offline payments</p>
               </div>
-              <button 
-                onClick={toggleEmergencyMode}
-                className={`w-12 h-6 rounded-full relative ${
-                  isEmergencyMode ? 'bg-emergency-600' : 'bg-gray-300'
-                }`}
-              >
-                <span className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${
-                  isEmergencyMode ? 'right-1' : 'left-1'
-                }`}></span>
-              </button>
+              <div className="flex items-center">
+                {isEmergencyMode && (
+                  <span className="text-xs font-medium mr-2 text-emergency-600">ON</span>
+                )}
+                <button 
+                  onClick={toggleEmergencyMode}
+                  className={`w-12 h-6 rounded-full relative ${
+                    isEmergencyMode ? 'bg-emergency-600' : 'bg-gray-300'
+                  }`}
+                >
+                  <span className={`absolute top-1 h-4 w-4 rounded-full bg-white transition-all ${
+                    isEmergencyMode ? 'right-1' : 'left-1'
+                  }`}></span>
+                </button>
+              </div>
             </div>
             
             <div className="p-4">

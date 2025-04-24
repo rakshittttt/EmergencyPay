@@ -27,9 +27,12 @@ const EmergencyToggle: React.FC = () => {
     <>
       <button 
         onClick={handleToggleClick}
-        className={`relative flex items-center justify-center h-8 w-8 rounded-full ${isEmergencyMode ? 'text-emergency-600' : 'text-gray-600'}`}
+        className={`relative flex items-center justify-center h-8 w-8 rounded-full ${isEmergencyMode ? 'bg-emergency-100 text-emergency-600' : 'text-gray-600'}`}
       >
         <i className="ri-alarm-warning-line text-lg"></i>
+        {isEmergencyMode && (
+          <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-emergency-600 animate-pulse"></span>
+        )}
       </button>
 
       <AnimatePresence>
