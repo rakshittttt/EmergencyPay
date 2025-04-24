@@ -25,6 +25,7 @@ const EmergencyToggle: React.FC = () => {
 
   return (
     <>
+      {/* Keeping the original button exactly as it was */}
       <button 
         onClick={handleToggleClick}
         className={`relative flex items-center justify-center h-8 w-8 rounded-full ${isEmergencyMode ? 'bg-emergency-100 text-emergency-600' : 'text-gray-600'}`}
@@ -41,35 +42,69 @@ const EmergencyToggle: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-emergency-600/90 z-50 flex flex-col justify-center items-center px-6"
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 backdrop-blur-md bg-black/50 z-50 flex flex-col justify-center items-center px-6"
           >
             <motion.div 
-              className="text-white text-center"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ delay: 0.1 }}
+              className="bg-[#3F3FE9] text-white rounded-2xl overflow-hidden shadow-2xl max-w-md w-full"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              transition={{ 
+                type: "spring", 
+                damping: 25, 
+                stiffness: 500,
+                delay: 0.1 
+              }}
             >
-              <div className="mb-6">
-                <i className="ri-alarm-warning-fill text-6xl"></i>
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Activate Emergency Mode?</h2>
-              <p className="bg-black/30 py-3 px-4 rounded-lg mb-8">This mode enables offline payments when UPI services are down. Transactions will be synced when network is restored.</p>
-              <div className="flex space-x-4">
-                <button 
-                  onClick={handleCancel}
-                  className="flex-1 bg-white/20 hover:bg-white/30 py-3 rounded-lg font-medium transition-colors"
+              <div className="p-6 text-center">
+                <motion.div 
+                  className="mb-6 inline-block"
+                  initial={{ rotate: 0 }}
+                  animate={{ rotate: [0, -10, 10, -10, 10, 0] }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
                 >
-                  Cancel
-                </button>
-                <button 
-                  onClick={handleConfirm}
-                  className="flex-1 bg-white text-emergency-600 py-3 rounded-lg font-medium transition-colors"
+                  <i className="ri-alarm-warning-fill text-7xl text-white/90"></i>
+                </motion.div>
+
+                <h2 className="text-2xl font-bold mb-3">Activate Emergency Mode?</h2>
+
+                <motion.div 
+                  className="bg-white/10 backdrop-blur-sm py-4 px-5 rounded-xl mb-8 text-white/90"
+                  initial={{ x: -10, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
                 >
-                  Activate
-                </button>
+                  <p>This mode enables <span className="font-semibold">offline payments</span> when UPI services are down. Transactions will be synced when network is restored.</p>
+                </motion.div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <motion.button 
+                    onClick={handleCancel}
+                    className="bg-white/10 hover:bg-white/20 py-4 rounded-xl font-medium transition-colors"
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    Cancel
+                  </motion.button>
+
+                  <motion.button 
+                    onClick={handleConfirm}
+                    className="bg-white text-[#3F3FE9] py-4 rounded-xl font-bold transition-colors"
+                    whileHover={{ scale: 1.03, backgroundColor: "#f0f0ff" }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    Activate
+                  </motion.button>
+                </div>
               </div>
+
+              <motion.div 
+                className="h-1 bg-white/30"
+                initial={{ width: 0 }}
+                animate={{ width: "100%" }}
+                transition={{ duration: 10 }}
+              />
             </motion.div>
           </motion.div>
         )}
