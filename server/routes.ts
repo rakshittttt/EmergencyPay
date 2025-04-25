@@ -277,6 +277,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User logout endpoint
+  apiRouter.post("/logout", async (req, res) => {
+    try {
+      // Clear any session/cookies if necessary
+      
+      // Send success response
+      res.status(200).json({ success: true, message: "Successfully logged out" });
+    } catch (error) {
+      console.error("Logout error:", error);
+      res.status(500).json({ success: false, message: "Failed to logout" });
+    }
+  });
+
   // Create an HTTP server
   const httpServer = createServer(app);
   

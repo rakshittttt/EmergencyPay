@@ -8,6 +8,7 @@ const Profile: React.FC = () => {
   const { currentUser, connectionStatus, isEmergencyMode, toggleEmergencyMode, reconcileTransactions } = useAppContext();
   const [, navigate] = useLocation();
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
 
@@ -50,6 +51,36 @@ const Profile: React.FC = () => {
         window.alert(`Failed to update profile: ${error.message}`);
       } else {
         window.alert('Failed to update profile.');
+      }
+    }
+  };
+  
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    
+    try {
+      setIsLoggingOut(true);
+      
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to logout');
+      }
+      
+      // Redirect to login/homepage
+      window.location.href = '/';
+    } catch (error) {
+      setIsLoggingOut(false);
+      if (error instanceof Error) {
+        window.alert(`Logout failed: ${error.message}`);
+      } else {
+        window.alert('Logout failed. Please try again.');
       }
     }
   };
@@ -223,10 +254,18 @@ const Profile: React.FC = () => {
           </div>
           
           <button 
-            onClick={() => window.alert('Sign out functionality will be available in future updates.')}
-            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 py-3 rounded-lg font-medium mb-8 transition-colors"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 py-3 rounded-lg font-medium mb-8 transition-colors flex items-center justify-center"
           >
-            Sign Out
+            {isLoggingOut ? (
+              <>
+                <span className="h-4 w-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin mr-2"></span>
+                Signing Out...
+              </>
+            ) : (
+              'Sign Out'
+            )}
           </button>
         </div>
       </div>
