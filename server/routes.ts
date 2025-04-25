@@ -280,7 +280,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User logout endpoint
   apiRouter.post("/logout", async (req, res) => {
     try {
-      // Clear any session/cookies if necessary
+      // Set an auth cookie to handle log out state
+      res.cookie('auth_state', 'logged_out', { 
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours 
+      });
       
       // Send success response
       res.status(200).json({ success: true, message: "Successfully logged out" });
@@ -297,7 +301,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupSocketIO(httpServer);
 
   // Get current user (for demo purposes, just return the first user)
-  apiRouter.get("/user", async (_req, res) => {
+  apiRouter.get("/user", async (req, res) => {
+    // Check for logout state in cookies
+    if (req.cookies && req.cookies.auth_state === 'logged_out') {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+    
     const user = await storage.getUser(1);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
