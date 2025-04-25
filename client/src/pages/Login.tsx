@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useAppContext } from '@/context/AppContext';
 import { useLocation } from 'wouter';
+import { toast } from '@/hooks/use-toast';
 
 const Login: React.FC = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -25,14 +25,22 @@ const Login: React.FC = () => {
         throw new Error('Login failed');
       }
       
-      // Redirect to home page
+      // Refresh the page to reload user state
       window.location.href = '/';
     } catch (error) {
       setIsLoggingIn(false);
       if (error instanceof Error) {
-        window.alert(`Login failed: ${error.message}`);
+        toast({
+          title: "Login Failed",
+          description: error.message,
+          variant: "destructive",
+        });
       } else {
-        window.alert('Login failed. Please try again.');
+        toast({
+          title: "Login Failed",
+          description: "Please try again",
+          variant: "destructive",
+        });
       }
     }
   };

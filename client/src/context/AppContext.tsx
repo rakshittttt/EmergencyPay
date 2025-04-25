@@ -21,6 +21,7 @@ interface AppContextType {
   startDeviceDiscovery: () => void;
   stopDeviceDiscovery: () => void;
   isScanning: boolean;
+  isLoading: boolean;
   selectedMerchant: Merchant | null;
   selectMerchant: (merchant: Merchant | null) => void;
   initiatePayment: (amount: number) => Promise<Transaction | null>;
@@ -43,11 +44,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
 
   // Fetch current user
-  const { data: currentUser } = useQuery<User | null>({
+  const { data: currentUser, isLoading, isError } = useQuery<User | null>({
     queryKey: ['/api/user'],
-    onError: () => {
-      return null;
-    }
+    queryFn: async () => {
+      try {
+        const res = await fetch('/api/user');
+        if (res.status === 401) {
+          return null;
+        }
+        if (!res.ok) {
+          throw new Error('Failed to fetch user');
+        }
+        return res.json();
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        return null;
+      }
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: false
   });
 
   // Fetch transactions
@@ -356,7 +371,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     connectionStatus,
     isEmergencyMode,
     toggleEmergencyMode,
-    currentUser,
+    currentUser: currentUser || null,
     currentRoute,
     setCurrentRoute,
     transactions,
@@ -366,6 +381,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     startDeviceDiscovery,
     stopDeviceDiscovery,
     isScanning,
+    isLoading,
     selectedMerchant,
     selectMerchant,
     initiatePayment,

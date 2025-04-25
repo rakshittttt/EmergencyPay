@@ -5,8 +5,13 @@ import { useAppContext } from '@/context/AppContext';
 import { Transaction } from '@shared/schema';
 import { useQuery } from '@tanstack/react-query';
 
-const PaymentSuccess: React.FC = () => {
-  const { id } = useParams();
+interface PaymentSuccessProps {
+  id?: string;
+}
+
+const PaymentSuccess: React.FC<PaymentSuccessProps> = ({ id: propId }) => {
+  const params = useParams();
+  const id = propId || params.id;
   const [, navigate] = useLocation();
   const { transactions, merchants, currentUser, refreshTransactions } = useAppContext();
   

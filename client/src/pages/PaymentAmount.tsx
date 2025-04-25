@@ -3,8 +3,13 @@ import { motion } from 'framer-motion';
 import { useLocation, useParams } from 'wouter';
 import { useAppContext } from '@/context/AppContext';
 
-const PaymentAmount: React.FC = () => {
-  const { id } = useParams();
+interface PaymentAmountProps {
+  id?: string;
+}
+
+const PaymentAmount: React.FC<PaymentAmountProps> = ({ id: propId }) => {
+  const params = useParams();
+  const id = propId || params.id;
   const [, navigate] = useLocation();
   const { 
     merchants, 

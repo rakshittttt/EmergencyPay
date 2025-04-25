@@ -1,16 +1,74 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useAppContext } from '@/context/AppContext';
 import { useLocation } from 'wouter';
 import StatusBar from '@/components/StatusBar';
+import { toast } from '@/hooks/use-toast';
 
 const Profile: React.FC = () => {
-  const { currentUser, connectionStatus, isEmergencyMode, toggleEmergencyMode, reconcileTransactions, logout } = useAppContext();
+  const [isEmergencyMode, setIsEmergencyMode] = useState(false);
+  const [connectionStatus, setConnectionStatus] = useState<'online' | 'offline' | 'emergency'>('online');
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const [, navigate] = useLocation();
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
+  
+  // Load user data
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await fetch('/api/user');
+        if (res.ok) {
+          const userData = await res.json();
+          setCurrentUser(userData);
+        } else {
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      }
+    };
+    
+    fetchUser();
+  }, [navigate]);
+  
+  // Toggle emergency mode function
+  const toggleEmergencyMode = async () => {
+    // Simplified for this demo, just toggling state
+    setIsEmergencyMode(!isEmergencyMode);
+    setConnectionStatus(isEmergencyMode ? 'online' : 'emergency');
+    
+    toast({
+      title: isEmergencyMode ? "Emergency Mode Deactivated" : "Emergency Mode Activated",
+      description: isEmergencyMode ? "Returned to normal payment mode" : "You can now make offline payments",
+      variant: isEmergencyMode ? "default" : "destructive",
+    });
+  };
+  
+  // Reconcile transactions function
+  const reconcileTransactions = async () => {
+    try {
+      const response = await fetch('/api/reconcile', {
+        method: 'POST',
+      });
+      
+      if (response.ok) {
+        toast({
+          title: "Reconciliation Complete",
+          description: "Your transactions have been processed",
+        });
+      } else {
+        throw new Error('Failed to reconcile transactions');
+      }
+    } catch (error) {
+      toast({
+        title: "Reconciliation Failed",
+        description: "Could not process pending transactions",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleEditProfile = () => {
     if (currentUser) {
@@ -60,15 +118,32 @@ const Profile: React.FC = () => {
     
     try {
       setIsLoggingOut(true);
-      // Use the logout function from context that handles both server-side and client-side logout
-      await logout();
-      // The logout function in the context already handles the redirect
+      
+      // Call the logout API endpoint
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+      
+      // Redirect to login page after successful logout
+      window.location.href = '/login';
     } catch (error) {
       setIsLoggingOut(false);
       if (error instanceof Error) {
-        window.alert(`Logout failed: ${error.message}`);
+        toast({
+          title: "Logout Failed",
+          description: error.message,
+          variant: "destructive",
+        });
       } else {
-        window.alert('Logout failed. Please try again.');
+        toast({
+          title: "Logout Failed",
+          description: "Please try again",
+          variant: "destructive",
+        });
       }
     }
   };

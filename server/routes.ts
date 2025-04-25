@@ -277,6 +277,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // User login endpoint
+  apiRouter.post("/login", async (req, res) => {
+    try {
+      const { phone } = req.body;
+      
+      if (!phone) {
+        return res.status(400).json({ success: false, message: "Phone number is required" });
+      }
+      
+      // For demo purposes, find user with this phone
+      const user = await storage.getUserByPhone(phone);
+      if (!user) {
+        return res.status(401).json({ success: false, message: "Invalid phone number" });
+      }
+      
+      // Set an auth cookie
+      res.cookie('auth_state', 'logged_in', { 
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours 
+      });
+      
+      // Remove private key before sending to client
+      const { private_key, ...safeUser } = user;
+      
+      // Send success response with user info
+      res.status(200).json({ success: true, user: safeUser });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ success: false, message: "Failed to login" });
+    }
+  });
+
   // User logout endpoint
   apiRouter.post("/logout", async (req, res) => {
     try {
