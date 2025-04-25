@@ -56,7 +56,10 @@ const Home: React.FC = () => {
         
         {/* Balance Card */}
         <div className="mx-4 mb-6">
-          <BalanceCard />
+          <BalanceCard
+            balance={currentUser?.balance}
+            emergencyBalance={currentUser?.emergency_balance}
+          />
         </div>
         
         {/* Quick Actions */}
