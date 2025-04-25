@@ -21,13 +21,11 @@ interface AppContextType {
   startDeviceDiscovery: () => void;
   stopDeviceDiscovery: () => void;
   isScanning: boolean;
-  isLoading: boolean;
   selectedMerchant: Merchant | null;
   selectMerchant: (merchant: Merchant | null) => void;
   initiatePayment: (amount: number) => Promise<Transaction | null>;
   reconcileTransactions: () => Promise<void>;
   refreshTransactions: () => void;
-  logout: () => Promise<void>;
 }
 
 // Create the context with a default value
@@ -44,25 +42,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
 
   // Fetch current user
-  const { data: currentUser, isLoading, isError } = useQuery<User | null>({
+  const { data: currentUser } = useQuery<User | null>({
     queryKey: ['/api/user'],
-    queryFn: async () => {
-      try {
-        const res = await fetch('/api/user');
-        if (res.status === 401) {
-          return null;
-        }
-        if (!res.ok) {
-          throw new Error('Failed to fetch user');
-        }
-        return res.json();
-      } catch (error) {
-        console.error('Error fetching user:', error);
-        return null;
-      }
-    },
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: false
+    onError: () => {
+      return null;
+    }
   });
 
   // Fetch transactions
@@ -331,47 +315,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
     }
   }, [connectionStatus, refreshTransactions]);
-  
-  // Logout function
-  const logout = useCallback(async () => {
-    try {
-      const response = await fetch('/api/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to logout');
-      }
-      
-      // Reset client-side state
-      setIsEmergencyMode(false);
-      setConnectionStatus('online');
-      setDiscoveredDevices([]);
-      setSelectedMerchant(null);
-      
-      // Force a page reload to clear all state
-      window.location.href = '/';
-    } catch (error) {
-      console.error('Logout error:', error);
-      showToast({
-        title: "Logout Failed",
-        description: "Could not log out. Please try again.",
-        variant: "destructive",
-      });
-      throw error; // Re-throw to be handled by the caller
-    }
-  }, []);
 
   // Context value
   const contextValue: AppContextType = {
     connectionStatus,
     isEmergencyMode,
     toggleEmergencyMode,
-    currentUser: currentUser || null,
+    currentUser,
     currentRoute,
     setCurrentRoute,
     transactions,
@@ -381,13 +331,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     startDeviceDiscovery,
     stopDeviceDiscovery,
     isScanning,
-    isLoading,
     selectedMerchant,
     selectMerchant,
     initiatePayment,
     reconcileTransactions,
-    refreshTransactions,
-    logout
+    refreshTransactions
   };
 
   return (

@@ -1,73 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { useLocation } from 'wouter';
-import { toast } from '@/hooks/use-toast';
+import { useAppContext } from '@/context/AppContext';
+import StatusBar from '@/components/StatusBar';
 
 const Profile: React.FC = () => {
-  const [isEmergencyMode, setIsEmergencyMode] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState<'online' | 'offline' | 'emergency'>('online');
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [, navigate] = useLocation();
+  const { currentUser, connectionStatus, isEmergencyMode, toggleEmergencyMode, reconcileTransactions } = useAppContext();
   const [showEditProfile, setShowEditProfile] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  
-  // Load user data
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await fetch('/api/user');
-        if (res.ok) {
-          const userData = await res.json();
-          setCurrentUser(userData);
-        } else {
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error('Error fetching user:', error);
-      }
-    };
-    
-    fetchUser();
-  }, [navigate]);
-  
-  // Toggle emergency mode function
-  const toggleEmergencyMode = async () => {
-    // Simplified for this demo, just toggling state
-    setIsEmergencyMode(!isEmergencyMode);
-    setConnectionStatus(isEmergencyMode ? 'online' : 'emergency');
-    
-    toast({
-      title: isEmergencyMode ? "Emergency Mode Deactivated" : "Emergency Mode Activated",
-      description: isEmergencyMode ? "Returned to normal payment mode" : "You can now make offline payments",
-      variant: isEmergencyMode ? "default" : "destructive",
-    });
-  };
-  
-  // Reconcile transactions function
-  const reconcileTransactions = async () => {
-    try {
-      const response = await fetch('/api/reconcile', {
-        method: 'POST',
-      });
-      
-      if (response.ok) {
-        toast({
-          title: "Reconciliation Complete",
-          description: "Your transactions have been processed",
-        });
-      } else {
-        throw new Error('Failed to reconcile transactions');
-      }
-    } catch (error) {
-      toast({
-        title: "Reconciliation Failed",
-        description: "Could not process pending transactions",
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleEditProfile = () => {
     if (currentUser) {
@@ -97,52 +37,14 @@ const Profile: React.FC = () => {
         throw new Error(errorData.message || 'Failed to update profile');
       }
       
-      // Successfully updated - don't reload the page, just hide the modal
-      // and use proper navigation to avoid duplicate notifications
+      // Successfully updated
+      window.location.reload(); // Simple way to refresh user data
       setShowEditProfile(false);
-      
-      // Manually refresh the page with navigation to avoid duplicate socket connections
-      navigate('/profile');
     } catch (error) {
       if (error instanceof Error) {
         window.alert(`Failed to update profile: ${error.message}`);
       } else {
         window.alert('Failed to update profile.');
-      }
-    }
-  };
-  
-  const handleLogout = async () => {
-    if (isLoggingOut) return;
-    
-    try {
-      setIsLoggingOut(true);
-      
-      // Call the logout API endpoint
-      const response = await fetch('/api/logout', {
-        method: 'POST',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Logout failed');
-      }
-      
-      // Redirect to login page after successful logout using client-side navigation
-      navigate('/login');
-    } catch (error) {
-      setIsLoggingOut(false);
-      if (error instanceof Error) {
-        toast({
-          title: "Logout Failed",
-          description: error.message,
-          variant: "destructive",
-        });
-      } else {
-        toast({
-          title: "Logout Failed",
-          description: "Please try again",
-          variant: "destructive",
-        });
       }
     }
   };
@@ -165,16 +67,7 @@ const Profile: React.FC = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <div className="bg-primary text-white px-4 py-3 flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold">Profile</h2>
-          <p className="text-sm text-white/80">Manage your account</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 rounded-full bg-green-400"></div>
-          <span className="text-xs font-medium">Online</span>
-        </div>
-      </div>
+      <StatusBar />
       
       <div className="flex-1 overflow-auto scrollbar-hide pb-20">
         <div className="bg-primary text-white py-8 px-4 rounded-b-3xl relative">
@@ -224,7 +117,57 @@ const Profile: React.FC = () => {
                   <p className="text-gray-500 text-sm">Top up your account</p>
                 </div>
                 <button 
-                  onClick={() => navigate('/add-funds')}
+                  onClick={() => {
+                    if (!currentUser) return;
+                    
+                    // Show modal with payment methods
+                    const amount = prompt('Enter amount to add (₹):', '1000');
+                    if (!amount) return;
+                    
+                    const numAmount = parseFloat(amount);
+                    if (isNaN(numAmount) || numAmount <= 0) {
+                      window.alert('Please enter a valid amount');
+                      return;
+                    }
+                    
+                    // Choose payment method
+                    const paymentMethods = ['UPI', 'CARD', 'NETBANKING'];
+                    const method = prompt(`Choose payment method (1: UPI, 2: CARD, 3: NETBANKING):`, '1');
+                    
+                    if (!method || !['1', '2', '3'].includes(method)) {
+                      window.alert('Invalid payment method');
+                      return;
+                    }
+                    
+                    const selectedMethod = paymentMethods[parseInt(method) - 1] as 'UPI' | 'CARD' | 'NETBANKING';
+                    
+                    // Show processing message
+                    window.alert(`Processing payment of ₹${numAmount.toLocaleString('en-IN')} via ${selectedMethod}. Please wait...`);
+                    
+                    // Call the real banking API
+                    fetch(`/api/banking/add-funds`, {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        userId: currentUser.id,
+                        amount: numAmount,
+                        source: selectedMethod
+                      })
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                      if (result.success) {
+                        window.alert(`Transaction Successful: ${result.message}`);
+                      } else {
+                        window.alert(`Transaction Failed: ${result.message}`);
+                      }
+                    })
+                    .catch(error => {
+                      window.alert(`Error: ${error.message || 'Failed to process payment'}`);
+                    });
+                  }}
                   className="bg-primary text-white px-4 py-1.5 rounded-md hover:bg-primary/90 transition-colors"
                 >
                   Add Funds
@@ -325,18 +268,10 @@ const Profile: React.FC = () => {
           </div>
           
           <button 
-            onClick={handleLogout}
-            disabled={isLoggingOut}
-            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 py-3 rounded-lg font-medium mb-8 transition-colors flex items-center justify-center"
+            onClick={() => window.alert('Sign out functionality will be available in future updates.')}
+            className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 py-3 rounded-lg font-medium mb-8 transition-colors"
           >
-            {isLoggingOut ? (
-              <>
-                <span className="h-4 w-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin mr-2"></span>
-                Signing Out...
-              </>
-            ) : (
-              'Sign Out'
-            )}
+            Sign Out
           </button>
         </div>
       </div>

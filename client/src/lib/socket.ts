@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { toast } from '@/hooks/use-toast';
+import { toast as showToast } from '@/hooks/use-toast';
 import { queryClient } from './queryClient';
 
 let socket: Socket | null = null;
@@ -24,7 +24,7 @@ export function initializeSocket(): Socket {
     console.log('Socket connected:', socket?.id);
     isConnected = true;
     
-    toast({
+    showToast({
       title: 'Real-time Updates Active',
       description: 'You will receive instant notifications for transactions',
       duration: 3000,
@@ -49,7 +49,7 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
     
     // Show toast notification
-    toast({
+    showToast({
       title: data.status === 'completed' ? 'Transaction Completed' : 'Transaction Failed',
       description: data.message,
       variant: data.status === 'completed' ? 'default' : 'destructive',
@@ -64,7 +64,7 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     
     // Show toast notification
-    toast({
+    showToast({
       title: 'Balance Updated',
       description: data.message,
       variant: 'default',
@@ -80,7 +80,7 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
     
     // Show toast notification
-    toast({
+    showToast({
       title: 'Emergency Payment Successful',
       description: `Your offline payment has been processed via ${data.method}`,
       variant: 'default',
@@ -107,7 +107,7 @@ export function initializeSocket(): Socket {
     // Show toast notification
     const completedCount = data.results.filter((r: any) => r.status === 'completed').length;
     
-    toast({
+    showToast({
       title: 'Reconciliation Complete',
       description: `${completedCount} transaction(s) have been processed`,
       variant: 'default',

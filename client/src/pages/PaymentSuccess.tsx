@@ -1,47 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useParams } from 'wouter';
-import { Transaction, Merchant } from '@shared/schema';
+import { useAppContext } from '@/context/AppContext';
+import { Transaction } from '@shared/schema';
+import { useQuery } from '@tanstack/react-query';
 
-interface PaymentSuccessProps {
-  id?: string;
-}
-
-const PaymentSuccess: React.FC<PaymentSuccessProps> = ({ id: propId }) => {
-  const params = useParams();
-  const id = propId || params.id;
+const PaymentSuccess: React.FC = () => {
+  const { id } = useParams();
   const [, navigate] = useLocation();
-  const [transaction, setTransaction] = useState<Transaction | null>(null);
-  const [merchant, setMerchant] = useState<Merchant | null>(null);
+  const { transactions, merchants, currentUser, refreshTransactions } = useAppContext();
+  
+  // Find the transaction
+  const transaction = transactions.find(t => t.id === parseInt(id));
+  
+  // Get merchant info
+  const merchant = transaction 
+    ? merchants.find(m => m.user_id === transaction.receiver_id)
+    : null;
   
   useEffect(() => {
-    // Fetch transaction details
-    const fetchTransactionData = async () => {
-      try {
-        if (!id) return;
-        
-        // Fetch transaction
-        const txRes = await fetch(`/api/transaction/${id}`);
-        if (txRes.ok) {
-          const txData = await txRes.json();
-          setTransaction(txData);
-          
-          // After getting transaction, fetch merchant info
-          if (txData && txData.receiver_id) {
-            const merchantRes = await fetch(`/api/merchant/${txData.receiver_id}`);
-            if (merchantRes.ok) {
-              const merchantData = await merchantRes.json();
-              setMerchant(merchantData);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching transaction data:', error);
-      }
-    };
-    
-    fetchTransactionData();
-  }, [id]);
+    // Refresh transactions to make sure we have the latest data
+    refreshTransactions();
+  }, [refreshTransactions]);
   
   const handleBackToHome = () => {
     navigate('/');
@@ -127,10 +107,7 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({ id: propId }) => {
           <div className="flex justify-between mb-3">
             <span className="text-gray-600">Date & Time</span>
             <span className="text-gray-800 font-medium">
-              {transaction.timestamp ? 
-                `${formatDate(transaction.timestamp.toString())} • ${formatTime(transaction.timestamp.toString())}` : 
-                'Processing'
-              }
+              {formatDate(transaction.timestamp.toString())} • {formatTime(transaction.timestamp.toString())}
             </span>
           </div>
           <div className="flex justify-between">

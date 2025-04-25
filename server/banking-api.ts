@@ -5,9 +5,9 @@
  * In a production environment, this would connect to real banking APIs like UPI, NEFT, etc.
  */
 
-import { log } from '../vite';
-import { emitToAll } from '../socket';
-import { Transaction } from '../../shared/schema';
+import { log } from './vite';
+import { emitToAll } from './socket';
+import { Transaction } from '@shared/schema';
 
 // Simulated banking API response times (ms)
 const TRANSACTION_TIME = {

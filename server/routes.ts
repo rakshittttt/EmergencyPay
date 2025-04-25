@@ -1,13 +1,12 @@
 import express, { type Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "../database/storage";
+import { storage } from "./storage";
 import { z } from "zod";
 import crypto from 'crypto';
 import { insertUserSchema, insertTransactionSchema, insertMerchantSchema } from "@shared/schema";
 
-import { processOnlineTransaction, processOfflineTransaction, verifyPendingTransaction, addFundsToAccount } from '../services/banking-api';
-import { setupSocketIO, emitToAll } from '../socket';
-import { generateFinancialInsights } from '../services/analytics';
+import { processOnlineTransaction, processOfflineTransaction, verifyPendingTransaction, addFundsToAccount } from './banking-api';
+import { setupSocketIO, emitToAll } from './socket';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -278,55 +277,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // User login endpoint
-  apiRouter.post("/login", async (req, res) => {
-    try {
-      const { phone } = req.body;
-      
-      if (!phone) {
-        return res.status(400).json({ success: false, message: "Phone number is required" });
-      }
-      
-      // For demo purposes, find user with this phone
-      const user = await storage.getUserByPhone(phone);
-      if (!user) {
-        return res.status(401).json({ success: false, message: "Invalid phone number" });
-      }
-      
-      // Set an auth cookie
-      res.cookie('auth_state', 'logged_in', { 
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours 
-      });
-      
-      // Remove private key before sending to client
-      const { private_key, ...safeUser } = user;
-      
-      // Send success response with user info
-      res.status(200).json({ success: true, user: safeUser });
-    } catch (error) {
-      console.error("Login error:", error);
-      res.status(500).json({ success: false, message: "Failed to login" });
-    }
-  });
-
-  // User logout endpoint
-  apiRouter.post("/logout", async (req, res) => {
-    try {
-      // Set an auth cookie to handle log out state
-      res.cookie('auth_state', 'logged_out', { 
-        httpOnly: true,
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours 
-      });
-      
-      // Send success response
-      res.status(200).json({ success: true, message: "Successfully logged out" });
-    } catch (error) {
-      console.error("Logout error:", error);
-      res.status(500).json({ success: false, message: "Failed to logout" });
-    }
-  });
-
   // Create an HTTP server
   const httpServer = createServer(app);
   
@@ -334,12 +284,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   setupSocketIO(httpServer);
 
   // Get current user (for demo purposes, just return the first user)
-  apiRouter.get("/user", async (req, res) => {
-    // Check for logout state in cookies
-    if (req.cookies && req.cookies.auth_state === 'logged_out') {
-      return res.status(401).json({ message: "User not authenticated" });
-    }
-    
+  apiRouter.get("/user", async (_req, res) => {
     const user = await storage.getUser(1);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -359,54 +304,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     const transactions = await storage.getTransactionsByUser(userId);
     res.json(transactions);
-  });
-  
-  // Generate financial insights for a user
-  apiRouter.get("/financial-insights/:userId", async (req, res) => {
-    try {
-      const userId = parseInt(req.params.userId);
-      if (isNaN(userId)) {
-        return res.status(400).json({ message: "Invalid user ID" });
-      }
-      
-      // Get necessary data
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      const transactions = await storage.getTransactionsByUser(userId);
-      const merchants = await storage.getMerchants();
-      
-      // Generate insights
-      const insights = await generateFinancialInsights(userId, user, transactions, merchants);
-      
-      res.json({
-        success: true,
-        insights
-      });
-    } catch (error) {
-      console.error("Financial insights error:", error);
-      res.status(500).json({ 
-        success: false, 
-        message: "Failed to generate financial insights" 
-      });
-    }
-  });
-  
-  // Get a specific transaction
-  apiRouter.get("/transaction/:id", async (req, res) => {
-    const id = parseInt(req.params.id);
-    if (isNaN(id)) {
-      return res.status(400).json({ message: "Invalid transaction ID" });
-    }
-    
-    const transaction = await storage.getTransaction(id);
-    if (!transaction) {
-      return res.status(404).json({ message: "Transaction not found" });
-    }
-    
-    res.json(transaction);
   });
 
   // Get all merchants
@@ -431,25 +328,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const merchant = await storage.getMerchant(id);
     if (!merchant) {
       return res.status(404).json({ message: "Merchant not found" });
-    }
-    
-    res.json(merchant);
-  });
-  
-  // Get merchant by user ID
-  apiRouter.get("/merchant/:userId", async (req, res) => {
-    const userId = parseInt(req.params.userId);
-    if (isNaN(userId)) {
-      return res.status(400).json({ message: "Invalid user ID" });
-    }
-    
-    // Get all merchants
-    const merchants = await storage.getMerchants();
-    
-    // Find merchant with user_id = userId
-    const merchant = merchants.find(m => m.user_id === userId);
-    if (!merchant) {
-      return res.status(404).json({ message: "Merchant not found for this user" });
     }
     
     res.json(merchant);
@@ -618,34 +496,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid update data", errors: error.errors });
       }
       res.status(500).json({ message: "Failed to update user" });
-    }
-  });
-
-  // Get financial insights for a user
-  apiRouter.get("/financial-insights/:userId", async (req, res) => {
-    try {
-      const userId = parseInt(req.params.userId);
-      if (isNaN(userId)) {
-        return res.status(400).json({ message: "Invalid user ID" });
-      }
-      
-      // Get user data
-      const user = await storage.getUser(userId);
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-      
-      // Get transactions and merchants
-      const transactions = await storage.getTransactionsByUser(userId);
-      const merchants = await storage.getMerchants();
-      
-      // Generate insights including AI summary
-      const insights = await generateFinancialInsights(userId, user, transactions, merchants);
-      
-      res.json({ insights });
-    } catch (error) {
-      console.error("Financial insights error:", error);
-      res.status(500).json({ message: "Failed to generate financial insights" });
     }
   });
 
