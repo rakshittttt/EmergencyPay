@@ -34,7 +34,8 @@ function App() {
     location.includes("/qr-scan") || 
     location.includes("/bluetooth-payment") || 
     location.includes("/payment-amount") || 
-    location.includes("/payment-success");
+    location.includes("/payment-success") ||
+    location.includes("/direct-transfer");
   
   return (
     <AppProvider>

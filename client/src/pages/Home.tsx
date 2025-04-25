@@ -92,7 +92,7 @@ const Home: React.FC = () => {
           {/* Direct Transfer Button */}
           <div>
             <button 
-              onClick={() => window.location.href = '/direct-transfer'}
+              onClick={() => navigate('/direct-transfer')}
               className="w-full bg-primary-50 border border-primary-100 rounded-lg p-3 flex items-center justify-between hover:bg-primary-100 transition-all"
             >
               <div className="flex items-center">
@@ -132,9 +132,7 @@ const Home: React.FC = () => {
             <h3 className="text-lg font-medium">Recent Transactions</h3>
             <button 
               className="text-primary text-sm"
-              onClick={() => {
-                window.location.href = '/transactions';
-              }}
+              onClick={() => navigate('/transactions')}
             >
               See All
             </button>
