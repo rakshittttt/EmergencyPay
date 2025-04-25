@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { useAppContext } from '@/context/AppContext';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/utils';
 
 type PaymentMethod = 'UPI' | 'CARD' | 'NETBANKING';
@@ -17,6 +17,7 @@ interface PaymentOption {
 const AddFunds: React.FC = () => {
   const [, navigate] = useLocation();
   const { currentUser } = useAppContext();
+  const { toast } = useToast();
   
   // Payment state
   const [amount, setAmount] = useState<string>('1000');
