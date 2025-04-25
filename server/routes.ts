@@ -7,6 +7,7 @@ import { insertUserSchema, insertTransactionSchema, insertMerchantSchema } from 
 
 import { processOnlineTransaction, processOfflineTransaction, verifyPendingTransaction, addFundsToAccount } from './banking-api';
 import { setupSocketIO, emitToAll } from './socket';
+import { generateFinancialInsights } from './analytics';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // API routes prefix
@@ -358,6 +359,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
     
     const transactions = await storage.getTransactionsByUser(userId);
     res.json(transactions);
+  });
+  
+  // Generate financial insights for a user
+  apiRouter.get("/financial-insights/:userId", async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      if (isNaN(userId)) {
+        return res.status(400).json({ message: "Invalid user ID" });
+      }
+      
+      // Get necessary data
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const transactions = await storage.getTransactionsByUser(userId);
+      const merchants = await storage.getMerchants();
+      
+      // Generate insights
+      const insights = await generateFinancialInsights(userId, user, transactions, merchants);
+      
+      res.json({
+        success: true,
+        insights
+      });
+    } catch (error) {
+      console.error("Financial insights error:", error);
+      res.status(500).json({ 
+        success: false, 
+        message: "Failed to generate financial insights" 
+      });
+    }
   });
   
   // Get a specific transaction
