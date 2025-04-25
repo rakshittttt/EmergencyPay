@@ -42,10 +42,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
 
   // Fetch current user
-  const { data: currentUser } = useQuery<User | null>({
+  const { data: currentUser, refetch: refetchUser } = useQuery<User | null>({
     queryKey: ['/api/user'],
-    onError: () => {
-      return null;
+    queryFn: async () => {
+      try {
+        const response = await fetch('/api/user');
+        if (!response.ok) return null;
+        return response.json();
+      } catch (error) {
+        console.error('Error fetching user:', error);
+        return null;
+      }
     }
   });
 
@@ -241,45 +248,106 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
       return null;
     }
-
-    try {
-      // Create an offline transaction
-      const response = await apiRequest('POST', '/api/transactions/offline', {
-        sender_id: currentUser.id,
-        receiver_id: selectedMerchant.user_id,
-        amount,
-        is_offline: true,
-        status: 'pending',
-        signature: 'simulated_signature_' + Date.now()
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to create transaction');
+    
+    // Check if emergency mode is enabled
+    if (isEmergencyMode && connectionStatus === 'emergency') {
+      // Check if user has sufficient emergency balance
+      if (parseFloat(currentUser.emergency_balance) < amount) {
+        showToast({
+          title: "Insufficient Emergency Balance",
+          description: "Please add funds to your emergency balance",
+          variant: "destructive",
+        });
+        return null;
       }
-
-      const transaction = await response.json();
       
-      showToast({
-        title: "Payment Initiated",
-        description: "Your offline payment is being processed",
-      });
+      try {
+        // Process payment through banking API in emergency mode
+        const response = await apiRequest('POST', '/api/banking/emergency-payment', {
+          senderId: currentUser.id,
+          receiverId: selectedMerchant.user_id,
+          amount: amount.toString(),
+          method: 'BLUETOOTH'
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to process emergency payment');
+        }
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          // Get the transaction details
+          const txnResponse = await apiRequest('GET', `/api/transactions/${result.transactionId}`);
+          const transaction = await txnResponse.json();
+          
+          showToast({
+            title: "Payment Successful",
+            description: `Paid ₹${amount} via Bluetooth in emergency mode`,
+          });
+          
+          // Refresh the transactions list
+          refreshTransactions();
+          
+          return transaction;
+        } else {
+          throw new Error(result.message || 'Payment processing failed');
+        }
+      } catch (error) {
+        console.error('Emergency payment error:', error);
+        showToast({
+          title: "Payment Failed",
+          description: error instanceof Error ? error.message : "Could not complete the transaction",
+          variant: "destructive",
+        });
+        return null;
+      }
+    } else {
+      // Regular online transaction flow
+      try {
+        // Process normal online transaction
+        const response = await apiRequest('POST', '/api/banking/transfer', {
+          senderId: currentUser.id,
+          receiverId: selectedMerchant.user_id,
+          amount: amount.toString()
+        });
 
-      // Refresh the transactions list
-      refreshTransactions();
-      
-      return transaction;
-    } catch (error) {
-      console.error('Payment error:', error);
-      showToast({
-        title: "Payment Failed",
-        description: "Could not complete the transaction",
-        variant: "destructive",
-      });
-      return null;
+        if (!response.ok) {
+          throw new Error('Failed to process online payment');
+        }
+
+        const result = await response.json();
+        
+        if (result.success) {
+          // Get the transaction details
+          const txnResponse = await apiRequest('GET', `/api/transactions/${result.transactionId}`);
+          const transaction = await txnResponse.json();
+          
+          showToast({
+            title: "Payment Successful",
+            description: `Paid ₹${amount} to ${selectedMerchant.name}`,
+          });
+          
+          // Refresh the transactions list
+          refreshTransactions();
+          
+          return transaction;
+        } else {
+          throw new Error(result.message || 'Payment processing failed');
+        }
+      } catch (error) {
+        console.error('Payment error:', error);
+        showToast({
+          title: "Payment Failed",
+          description: error instanceof Error ? error.message : "Could not complete the transaction",
+          variant: "destructive",
+        });
+        return null;
+      }
     }
-  }, [currentUser, selectedMerchant, refreshTransactions]);
+  }, [currentUser, selectedMerchant, refreshTransactions, isEmergencyMode, connectionStatus]);
 
-  // Reconcile transactions
+  // Reconcile transactions using banking API
   const reconcileTransactions = useCallback(async () => {
     if (connectionStatus !== 'online') {
       showToast({
@@ -291,7 +359,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
 
     try {
-      const response = await apiRequest('POST', '/api/reconcile', {});
+      showToast({
+        title: "Reconciliation Started",
+        description: "Processing offline transactions...",
+      });
+      
+      // Use the enhanced banking API endpoint
+      const response = await apiRequest('POST', '/api/banking/reconcile', {});
       
       if (!response.ok) {
         throw new Error('Failed to reconcile transactions');
@@ -299,10 +373,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       
       const result = await response.json();
       
+      // Calculate completed vs pending transactions
+      const completedCount = result.results.filter((r: any) => r.status === 'completed').length;
+      const pendingCount = result.results.filter((r: any) => r.status === 'pending').length;
+      
       showToast({
         title: "Reconciliation Complete",
-        description: `${result.results.filter((r: any) => r.status === 'completed').length} transactions processed`,
+        description: 
+          `${completedCount} transaction${completedCount !== 1 ? 's' : ''} processed successfully. ` +
+          `${pendingCount} still pending.`,
+        duration: 5000, // Show this message a bit longer
       });
+      
+      // Refresh user data to show updated balances
+      if (currentUser) {
+        refetchUser();
+      }
       
       // Refresh transactions after reconciliation
       refreshTransactions();
@@ -310,11 +396,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       console.error('Reconciliation error:', error);
       showToast({
         title: "Reconciliation Failed",
-        description: "Could not process pending transactions",
+        description: "Could not process pending transactions. Please try again later.",
         variant: "destructive",
       });
     }
-  }, [connectionStatus, refreshTransactions]);
+  }, [connectionStatus, refreshTransactions, currentUser, refetchUser]);
 
   // Context value
   const contextValue: AppContextType = {
