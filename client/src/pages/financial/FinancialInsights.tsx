@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronLeft, PieChart, TrendingUp, Info, BarChart2, Zap, Lightbulb } from 'lucide-react';
+import { ChevronLeft, PieChart, TrendingUp, Info, BarChart2, Zap, Lightbulb, Brain, Sparkles, Award, AlertTriangle, FileText } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
@@ -133,13 +133,116 @@ const FinancialInsights: React.FC<FinancialInsightsProps> = () => {
         </Button>
         
         {/* Insights Tabs */}
-        <Tabs defaultValue="summary" className="w-full">
-          <TabsList className="grid grid-cols-4 mb-4">
+        <Tabs defaultValue="ai-summary" className="w-full">
+          <TabsList className="grid grid-cols-5 mb-4">
+            <TabsTrigger value="ai-summary">AI Summary</TabsTrigger>
             <TabsTrigger value="summary">Summary</TabsTrigger>
             <TabsTrigger value="spending">Spending</TabsTrigger>
             <TabsTrigger value="insights">Insights</TabsTrigger>
             <TabsTrigger value="recommendations">Tips</TabsTrigger>
           </TabsList>
+          
+          {/* AI Summary Tab */}
+          <TabsContent value="ai-summary" className="space-y-4">
+            <Card className="p-5 mb-4 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl">
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="text-xl font-bold flex items-center">
+                  <Brain className="mr-2 h-6 w-6" />
+                  AI Financial Assistant
+                </h3>
+                <Sparkles className="h-5 w-5" />
+              </div>
+              
+              {isLoading ? (
+                <>
+                  <Skeleton className="h-5 w-full bg-white/20 my-2" />
+                  <Skeleton className="h-5 w-3/4 bg-white/20 my-2" />
+                  <Skeleton className="h-5 w-5/6 bg-white/20 my-2" />
+                </>
+              ) : !insightsData?.aiSummary ? (
+                <div className="text-center py-8">
+                  <p className="mb-4">AI Financial Summary not available</p>
+                  <p className="text-sm opacity-80">
+                    Click "Generate New Insights" to create your personalized financial summary
+                  </p>
+                </div>
+              ) : (
+                <div className="py-2 text-white space-y-5">
+                  <p className="leading-relaxed text-white/90">{insightsData.aiSummary.overview}</p>
+                </div>
+              )}
+            </Card>
+            
+            {insightsData?.aiSummary && (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Financial Strengths */}
+                  <Card className="p-4">
+                    <h3 className="text-lg font-semibold mb-3 flex items-center">
+                      <Award className="mr-2 h-5 w-5 text-green-500" />
+                      Financial Strengths
+                    </h3>
+                    
+                    <ul className="space-y-3">
+                      {insightsData.aiSummary.strengths.map((strength, index) => (
+                        <li key={index} className="flex items-start">
+                          <div className="h-6 w-6 rounded-full bg-green-100 flex items-center justify-center mr-3 mt-0.5">
+                            <span className="text-green-600 text-sm">✓</span>
+                          </div>
+                          <p>{strength}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                  
+                  {/* Improvement Areas */}
+                  <Card className="p-4">
+                    <h3 className="text-lg font-semibold mb-3 flex items-center">
+                      <AlertTriangle className="mr-2 h-5 w-5 text-amber-500" />
+                      Areas to Improve
+                    </h3>
+                    
+                    <ul className="space-y-3">
+                      {insightsData.aiSummary.improvement_areas.map((area, index) => (
+                        <li key={index} className="flex items-start">
+                          <div className="h-6 w-6 rounded-full bg-amber-100 flex items-center justify-center mr-3 mt-0.5">
+                            <span className="text-amber-600 text-sm">!</span>
+                          </div>
+                          <p>{area}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                </div>
+                
+                {/* Action Plan */}
+                <Card className="p-4">
+                  <h3 className="text-lg font-semibold mb-3 flex items-center">
+                    <FileText className="mr-2 h-5 w-5 text-blue-500" />
+                    Your Personalized Action Plan
+                  </h3>
+                  
+                  <ol className="space-y-3 list-decimal pl-6">
+                    {insightsData.aiSummary.action_plan.map((action, index) => (
+                      <li key={index} className="pl-2">
+                        <p>{action}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </Card>
+                
+                {/* Emergency Preparedness */}
+                <Card className="p-4 border-2 border-indigo-500">
+                  <h3 className="text-lg font-semibold mb-3 flex items-center text-indigo-600">
+                    <Zap className="mr-2 h-5 w-5" />
+                    Emergency Preparedness
+                  </h3>
+                  
+                  <p className="text-gray-700">{insightsData.aiSummary.emergency_preparedness}</p>
+                </Card>
+              </>
+            )}
+          </TabsContent>
           
           {/* Summary Tab */}
           <TabsContent value="summary" className="space-y-4">
