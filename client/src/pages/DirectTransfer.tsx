@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import { useAppContext } from '@/context/AppContext';
@@ -7,7 +7,12 @@ import { apiRequest } from '@/lib/queryClient';
 
 const DirectTransfer: React.FC = () => {
   const [, navigate] = useLocation();
-  const { currentUser, refreshTransactions } = useAppContext();
+  const { 
+    currentUser, 
+    refreshTransactions, 
+    isEmergencyMode, 
+    connectionStatus 
+  } = useAppContext();
   
   const [phoneNumber, setPhoneNumber] = useState('');
   const [amount, setAmount] = useState('');
@@ -53,14 +58,32 @@ const DirectTransfer: React.FC = () => {
       return;
     }
     
-    // Check if user has sufficient balance
-    if (currentUser && parseFloat(currentUser.balance) < parsedAmount) {
-      toast({
-        title: 'Insufficient Balance',
-        description: 'You do not have enough balance to make this transfer',
-        variant: 'destructive',
-      });
-      return;
+    // Determine if we're in emergency mode
+    const isInEmergencyMode = isEmergencyMode && connectionStatus === 'emergency';
+    
+    // Check if user has sufficient balance based on mode
+    if (currentUser) {
+      if (isInEmergencyMode) {
+        // Check emergency balance in emergency mode
+        if (parseFloat(currentUser.emergency_balance) < parsedAmount) {
+          toast({
+            title: 'Insufficient Emergency Balance',
+            description: 'You do not have enough emergency balance to make this transfer',
+            variant: 'destructive',
+          });
+          return;
+        }
+      } else {
+        // Check regular balance in normal mode
+        if (parseFloat(currentUser.balance) < parsedAmount) {
+          toast({
+            title: 'Insufficient Balance',
+            description: 'You do not have enough balance to make this transfer',
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
     }
     
     setIsProcessing(true);
@@ -75,12 +98,17 @@ const DirectTransfer: React.FC = () => {
       
       const receiverUser = await checkUserResponse.json();
       
-      // Process transfer
-      const response = await apiRequest('POST', '/api/banking/transfer', {
+      // Process transfer based on mode
+      const endpoint = isInEmergencyMode ? '/api/banking/emergency-payment' : '/api/banking/transfer';
+      const payload = {
         senderId: currentUser?.id,
         receiverId: receiverUser.id,
-        amount: parsedAmount.toString()
-      });
+        amount: parsedAmount.toString(),
+        method: 'DIRECT_TRANSFER'
+      };
+      
+      // Make the API request
+      const response = await apiRequest('POST', endpoint, payload);
       
       if (!response.ok) {
         const errorData = await response.json();
@@ -113,6 +141,20 @@ const DirectTransfer: React.FC = () => {
       setIsProcessing(false);
     }
   };
+  
+  // Determine if we're in emergency mode
+  const isInEmergencyMode = isEmergencyMode && connectionStatus === 'emergency';
+  
+  // Effect to show banner when in emergency mode
+  useEffect(() => {
+    if (isInEmergencyMode) {
+      toast({
+        title: 'Emergency Mode Active',
+        description: 'Your payment will be processed offline and reconciled later',
+        variant: 'default',
+      });
+    }
+  }, [isInEmergencyMode]);
   
   return (
     <motion.div 
