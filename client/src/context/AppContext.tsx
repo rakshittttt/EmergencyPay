@@ -26,6 +26,7 @@ interface AppContextType {
   initiatePayment: (amount: number) => Promise<Transaction | null>;
   reconcileTransactions: () => Promise<void>;
   refreshTransactions: () => void;
+  logout: () => Promise<void>;
 }
 
 // Create the context with a default value
@@ -315,6 +316,40 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       });
     }
   }, [connectionStatus, refreshTransactions]);
+  
+  // Logout function
+  const logout = useCallback(async () => {
+    try {
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to logout');
+      }
+      
+      // Reset client-side state
+      setIsEmergencyMode(false);
+      setConnectionStatus('online');
+      setDiscoveredDevices([]);
+      setSelectedMerchant(null);
+      
+      // Force a page reload to clear all state
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+      showToast({
+        title: "Logout Failed",
+        description: "Could not log out. Please try again.",
+        variant: "destructive",
+      });
+      throw error; // Re-throw to be handled by the caller
+    }
+  }, []);
 
   // Context value
   const contextValue: AppContextType = {
@@ -335,7 +370,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     selectMerchant,
     initiatePayment,
     reconcileTransactions,
-    refreshTransactions
+    refreshTransactions,
+    logout
   };
 
   return (

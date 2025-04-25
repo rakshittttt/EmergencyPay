@@ -5,7 +5,7 @@ import { useLocation } from 'wouter';
 import StatusBar from '@/components/StatusBar';
 
 const Profile: React.FC = () => {
-  const { currentUser, connectionStatus, isEmergencyMode, toggleEmergencyMode, reconcileTransactions } = useAppContext();
+  const { currentUser, connectionStatus, isEmergencyMode, toggleEmergencyMode, reconcileTransactions, logout } = useAppContext();
   const [, navigate] = useLocation();
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -60,21 +60,9 @@ const Profile: React.FC = () => {
     
     try {
       setIsLoggingOut(true);
-      
-      const response = await fetch('/api/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to logout');
-      }
-      
-      // Redirect to login/homepage
-      window.location.href = '/';
+      // Use the logout function from context that handles both server-side and client-side logout
+      await logout();
+      // The logout function in the context already handles the redirect
     } catch (error) {
       setIsLoggingOut(false);
       if (error instanceof Error) {
