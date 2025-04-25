@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Transaction } from '@shared/schema';
 import { MerchantCategory } from '@shared/types';
 import { useAppContext } from '@/context/AppContext';
+import { useLocation } from 'wouter';
 
 interface TransactionItemProps {
   transaction: Transaction;
@@ -11,6 +12,7 @@ interface TransactionItemProps {
 
 const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, index }) => {
   const { currentUser, merchants } = useAppContext();
+  const [, navigate] = useLocation();
   
   // Determine if this was a payment or receipt based on sender/receiver
   const isPayment = transaction.sender_id === currentUser?.id;
@@ -26,18 +28,22 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, index })
   }).format(Number(transaction.amount));
   
   // Format date
-  const formattedDate = new Date(transaction.timestamp).toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  });
+  const formattedDate = transaction.timestamp 
+    ? new Date(transaction.timestamp).toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      })
+    : 'N/A';
   
   // Format time
-  const formattedTime = new Date(transaction.timestamp).toLocaleTimeString('en-IN', {
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  });
+  const formattedTime = transaction.timestamp
+    ? new Date(transaction.timestamp).toLocaleTimeString('en-IN', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      })
+    : 'N/A';
   
   // Determine transaction icon and colors
   const getTransactionIcon = () => {
@@ -76,13 +82,19 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, index })
     }
   };
 
+  const handleClick = () => {
+    // Navigate to transaction detail page
+    navigate(`/transaction/${transaction.id}`);
+  };
+
   return (
     <motion.div 
-      className="transaction-item bg-white rounded-xl p-4 flex items-center mb-3 card-shadow"
+      className="transaction-item bg-white rounded-xl p-4 flex items-center mb-3 card-shadow cursor-pointer"
       initial={{ x: 20, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ delay: index * 0.1, duration: 0.3 }}
       whileTap={{ scale: 0.98 }}
+      onClick={handleClick}
     >
       <div className={`h-10 w-10 rounded-full ${getIconBgColor()} flex items-center justify-center mr-3`}>
         <i className={`${getTransactionIcon()} text-lg ${getIconColor()}`}></i>
@@ -97,6 +109,9 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, index })
           <i className={`${getStatusIcon()} mr-1`}></i> 
           {transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)}
         </p>
+      </div>
+      <div className="ml-2 text-gray-400">
+        <i className="ri-arrow-right-s-line"></i>
       </div>
     </motion.div>
   );

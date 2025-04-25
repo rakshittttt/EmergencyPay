@@ -6,9 +6,9 @@ import BluetoothPayment from "@/pages/BluetoothPayment";
 import PaymentAmount from "@/pages/PaymentAmount";
 import PaymentSuccess from "@/pages/PaymentSuccess";
 import TransactionHistory from "@/pages/TransactionHistory";
+import TransactionDetail from "@/pages/TransactionDetail";
 import Merchants from "@/pages/Merchants";
 import Profile from "@/pages/Profile";
-import DirectTransfer from "@/pages/DirectTransfer";
 import NotFound from "@/pages/not-found";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useEffect, useState } from "react";
@@ -48,6 +48,7 @@ function App() {
               <Route path="/payment-amount/:id" component={PaymentAmount} />
               <Route path="/payment-success/:id" component={PaymentSuccess} />
               <Route path="/transactions" component={TransactionHistory} />
+              <Route path="/transaction/:id" component={TransactionDetail} />
               <Route path="/merchants" component={Merchants} />
               <Route path="/profile" component={Profile} />
 
