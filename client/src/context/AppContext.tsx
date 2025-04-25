@@ -359,19 +359,56 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const result = await response.json();
         
         if (result.success) {
-          // Get the transaction details
-          const txnResponse = await apiRequest('GET', `/api/transactions/${result.transactionId}`);
-          const transaction = await txnResponse.json();
-          
-          showToast({
-            title: "Payment Successful",
-            description: `Paid ₹${amount} to ${selectedMerchant.name}`,
-          });
-          
-          // Refresh the transactions list
-          refreshTransactions();
-          
-          return transaction;
+          try {
+            // Get the transaction details
+            const txnResponse = await apiRequest('GET', `/api/transactions/${result.transactionId}`);
+            const transaction = await txnResponse.json();
+            
+            showToast({
+              title: "Payment Successful",
+              description: `Paid ₹${amount} to ${selectedMerchant.name}`,
+            });
+            
+            // Refresh the transactions list
+            refreshTransactions();
+            
+            // Check if we have a valid transaction response
+            if (Array.isArray(transaction) && transaction.length > 0) {
+              return transaction[0]; // Return the first transaction from the array
+            } else if (transaction && typeof transaction === 'object') {
+              return transaction; // Return the transaction object
+            } else {
+              // If we don't have valid transaction data, create a minimal transaction object
+              // This ensures the UI can still show a success screen
+              console.log("Creating minimal transaction object for UI");
+              return {
+                id: result.transactionId,
+                sender_id: currentUser.id,
+                receiver_id: selectedMerchant.user_id,
+                amount: amount.toString(),
+                status: "completed",
+                transaction_code: result.referenceNumber || `TXN${result.transactionId}`,
+                timestamp: new Date(),
+                signature: null,
+                is_offline: false
+              };
+            }
+          } catch (error) {
+            console.error("Failed to fetch transaction details, using fallback", error);
+            
+            // Still return a transaction object so the UI shows success
+            return {
+              id: result.transactionId,
+              sender_id: currentUser.id,
+              receiver_id: selectedMerchant.user_id,
+              amount: amount.toString(),
+              status: "completed",
+              transaction_code: result.referenceNumber || `TXN${result.transactionId}`,
+              timestamp: new Date(),
+              signature: null,
+              is_offline: false
+            };
+          }
         } else {
           throw new Error(result.message || 'Payment processing failed');
         }

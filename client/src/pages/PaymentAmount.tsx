@@ -66,7 +66,8 @@ const PaymentAmount: React.FC = () => {
       
       if (transaction && transaction.id) {
         console.log("Payment successful, transaction:", transaction);
-        // Add a slight delay to allow UI to update before navigation
+        
+        // Payment was successful, navigate to success page
         setTimeout(() => {
           navigate(`/payment-success/${transaction.id}`);
         }, 300);
@@ -77,6 +78,7 @@ const PaymentAmount: React.FC = () => {
           description: "Your payment could not be processed. Please try again.",
           variant: "destructive"
         });
+        setIsProcessing(false);
       }
     } catch (error) {
       console.error("Payment error:", error);
@@ -85,7 +87,6 @@ const PaymentAmount: React.FC = () => {
         description: "An error occurred during payment processing. Please try again.",
         variant: "destructive"
       });
-    } finally {
       setIsProcessing(false);
     }
   };
