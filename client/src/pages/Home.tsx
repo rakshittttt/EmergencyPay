@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import QuickActionButton from '@/components/QuickActionButton';
 import BalanceCard from '@/components/BalanceCard';
+import SimpleStatusBar from '@/components/SimpleStatusBar';
 
 // Simplified Home component that doesn't use AppContext
 const Home: React.FC = () => {
@@ -78,6 +79,8 @@ const Home: React.FC = () => {
           <span className="text-xs font-medium">Online</span>
         </div>
       </div>
+      
+      <SimpleStatusBar connectionStatus="online" />
       
       <div className="flex-1 overflow-auto scrollbar-hide pb-20">
         {/* Welcome Header */}
