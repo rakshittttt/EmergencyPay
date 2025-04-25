@@ -1,10 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useLocation } from 'wouter';
 import { useAppContext } from '@/context/AppContext';
+import { useNotifications } from '@/context/NotificationContext';
 import EmergencyToggle from './EmergencyToggle';
 
 const StatusBar: React.FC = () => {
   const { connectionStatus } = useAppContext();
+  const { notifications, unreadCount, markAsRead } = useNotifications();
+  const [, navigate] = useLocation();
   const [showNotifications, setShowNotifications] = React.useState(false);
   const notificationRef = React.useRef<HTMLDivElement>(null);
 
@@ -123,7 +127,9 @@ const StatusBar: React.FC = () => {
             onClick={() => setShowNotifications(!showNotifications)}
           >
             <i className="ri-notification-3-line text-lg text-gray-600"></i>
-            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-primary"></span>
+            {unreadCount > 0 && (
+              <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-primary"></span>
+            )}
           </button>
           
           {showNotifications && (
@@ -134,32 +140,67 @@ const StatusBar: React.FC = () => {
               transition={{ duration: 0.2 }}
             >
               <div className="p-3 border-b border-gray-200">
-                <h4 className="font-medium">Notifications</h4>
-              </div>
-              <div className="p-2 max-h-72 overflow-auto">
-                <div className="p-2 text-sm border-b border-gray-100">
-                  <div className="flex items-start">
-                    <span className="h-2 w-2 mt-1.5 rounded-full bg-primary mr-2 flex-shrink-0"></span>
-                    <div>
-                      <p className="font-medium">Emergency Mode Activated</p>
-                      <p className="text-gray-500 text-xs mt-1">UPI servers are currently down. Emergency payments are now active.</p>
-                      <p className="text-gray-400 text-xs mt-1">2 hours ago</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-2 text-sm">
-                  <div className="flex items-start">
-                    <span className="h-2 w-2 mt-1.5 rounded-full bg-gray-300 mr-2 flex-shrink-0"></span>
-                    <div>
-                      <p className="font-medium">Payment Successful</p>
-                      <p className="text-gray-500 text-xs mt-1">You paid ₹250 to MedPlus Pharmacy</p>
-                      <p className="text-gray-400 text-xs mt-1">Yesterday</p>
-                    </div>
-                  </div>
+                <div className="flex justify-between items-center">
+                  <h4 className="font-medium">Notifications</h4>
+                  {unreadCount > 0 && (
+                    <span className="text-xs bg-primary text-white rounded-full px-2 py-0.5">
+                      {unreadCount} new
+                    </span>
+                  )}
                 </div>
               </div>
+              
+              <div className="max-h-72 overflow-auto">
+                {notifications.length === 0 ? (
+                  <div className="p-4 text-center text-gray-500 text-sm">
+                    No notifications yet
+                  </div>
+                ) : (
+                  <div>
+                    {notifications.slice(0, 3).map((notification) => (
+                      <div 
+                        key={notification.id} 
+                        className="p-2 text-sm border-b border-gray-100 cursor-pointer hover:bg-gray-50"
+                        onClick={() => {
+                          markAsRead(notification.id);
+                          setShowNotifications(false);
+                          if (notification.link) {
+                            navigate(notification.link);
+                          }
+                        }}
+                      >
+                        <div className="flex items-start">
+                          <span 
+                            className={`h-2 w-2 mt-1.5 rounded-full ${notification.read ? 'bg-gray-300' : 'bg-primary'} mr-2 flex-shrink-0`}
+                          ></span>
+                          <div>
+                            <p className="font-medium">{notification.title}</p>
+                            <p className="text-gray-500 text-xs mt-1">{notification.message}</p>
+                            <p className="text-gray-400 text-xs mt-1">
+                              {new Date(notification.timestamp).toLocaleString('en-IN', {
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true,
+                                day: 'numeric',
+                                month: 'short'
+                              })}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
               <div className="p-2 border-t border-gray-200">
-                <button className="w-full text-center text-xs text-primary py-1">
+                <button 
+                  className="w-full text-center text-xs text-primary py-1"
+                  onClick={() => {
+                    setShowNotifications(false);
+                    navigate('/notifications');
+                  }}
+                >
                   View All Notifications
                 </button>
               </div>
