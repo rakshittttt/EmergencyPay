@@ -12,18 +12,30 @@ const Login: React.FC = () => {
     try {
       setIsLoggingIn(true);
       
+      // Make sure phone is properly formatted
+      if (!phone || phone.trim().length < 10) {
+        throw new Error('Please enter a valid phone number');
+      }
+      
+      console.log('Logging in with phone:', phone);
+      
       // Set the auth cookie by login via API
       const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ phone })
+        body: JSON.stringify({ phone: phone.trim() })
       });
       
+      // Get the response data
+      const responseData = await response.json();
+      
       if (!response.ok) {
-        throw new Error('Login failed');
+        throw new Error(responseData.message || 'Login failed');
       }
+      
+      console.log('Login successful:', responseData);
       
       // Refresh the page to reload user state
       window.location.href = '/';
