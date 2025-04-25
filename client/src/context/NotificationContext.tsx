@@ -18,7 +18,7 @@ export interface Notification {
 interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
-  addNotification: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => void;
+  addNotification: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>, showToastNotification?: boolean) => void;
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   clearNotifications: () => void;
@@ -37,7 +37,18 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
   const unreadCount = notifications.filter(n => !n.read).length;
   
   // Add a new notification
-  const addNotification = (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
+  const addNotification = (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>, showToastNotification = false) => {
+    // Check if a similar notification already exists to prevent duplication
+    const isDuplicate = notifications.some(
+      n => n.title === notification.title && 
+           n.message === notification.message && 
+           new Date().getTime() - new Date(n.timestamp).getTime() < 5000 // Within last 5 seconds
+    );
+    
+    if (isDuplicate) {
+      return; // Skip duplicate notifications
+    }
+    
     const newNotification: Notification = {
       ...notification,
       id: generateId(),
@@ -47,12 +58,14 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     
     setNotifications(prev => [newNotification, ...prev]);
     
-    // Also show as toast
-    toast({
-      title: notification.title,
-      description: notification.message,
-      duration: 5000,
-    });
+    // Only show toast if specifically requested
+    if (showToastNotification) {
+      toast({
+        title: notification.title,
+        description: notification.message,
+        duration: 5000,
+      });
+    }
   };
   
   // Mark a notification as read

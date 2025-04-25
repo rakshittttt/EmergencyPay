@@ -5,10 +5,10 @@ import { Notification } from '@/context/NotificationContext';
 
 let socket: Socket | null = null;
 let isConnected = false;
-let notificationCallback: ((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => void) | null = null;
+let notificationCallback: ((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>, showToast?: boolean) => void) | null = null;
 
 // Register notification callback
-export function registerNotificationHandler(callback: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => void): void {
+export function registerNotificationHandler(callback: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>, showToast?: boolean) => void): void {
   notificationCallback = callback;
 }
 
@@ -59,12 +59,13 @@ export function initializeSocket(): Socket {
     if (notificationCallback && data.status) {
       const isSuccess = data.status === 'completed';
       
+      // Show toast for completed transactions only
       notificationCallback({
         title: isSuccess ? 'Payment Successful' : 'Payment Processing',
         message: `Transaction ${data.transactionId} - ${data.message || ''}`,
         type: 'payment',
         link: `/transaction/${data.transactionId}`
-      });
+      }, isSuccess); // Only show toast for successful payments
     }
   });
   
@@ -75,20 +76,14 @@ export function initializeSocket(): Socket {
     // Invalidate user cache to refresh balances
     queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     
-    // Create notification and show toast
+    // Create notification with toast
     if (notificationCallback) {
       notificationCallback({
         title: 'Balance Updated',
         message: data.message,
         type: 'system'
-      });
+      }, true); // Show toast only through notification system
     }
-    
-    showToast({
-      title: 'Balance Updated',
-      description: data.message,
-      variant: 'default',
-    });
   });
   
   // Emergency transaction updates
@@ -99,14 +94,14 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
     
-    // Create notification
+    // Create notification with toast
     if (notificationCallback) {
       notificationCallback({
         title: 'Emergency Payment Complete',
         message: `Transaction ${data.transactionId} has been completed in emergency mode`,
         type: 'emergency',
         link: `/transaction/${data.transactionId}`
-      });
+      }, true); // Show toast for emergency payments
     }
   });
   
@@ -138,23 +133,13 @@ export function initializeSocket(): Socket {
     // Only show notification if there are completed transactions
     const completedCount = data.results.filter((r: any) => r.status === 'completed').length;
     
-    if (completedCount > 0) {
-      // Show toast notification
-      showToast({
-        title: 'Reconciliation Complete',
-        description: `${completedCount} transaction(s) have been processed`,
-        variant: 'default',
-        duration: 5000,
-      });
-      
-      // Create notification
-      if (notificationCallback) {
-        notificationCallback({
-          title: 'Transactions Reconciled',
-          message: `${completedCount} offline transaction(s) have been successfully processed now that you're back online`,
-          type: 'reconciliation'
-        });
-      }
+    if (completedCount > 0 && notificationCallback) {
+      // Create notification with toast
+      notificationCallback({
+        title: 'Transactions Reconciled',
+        message: `${completedCount} offline transaction(s) have been successfully processed now that you're back online`,
+        type: 'reconciliation'
+      }, true); // Show toast through notification system
     }
   });
   
