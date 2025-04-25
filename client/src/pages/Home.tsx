@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
-import QuickActionButton from '@/components/QuickActionButton';
-import BalanceCard from '@/components/BalanceCard';
+import QuickActionButton from '@/components/layout/QuickActionButton';
+import BalanceCard from '@/components/financial/BalanceCard';
 import StatusBar from '@/components/layout/StatusBar';
 
 // Simplified Home component that doesn't use AppContext

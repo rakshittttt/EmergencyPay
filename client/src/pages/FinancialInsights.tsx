@@ -9,8 +9,8 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { useIsMobile } from '@/hooks/use-mobile';
-import BottomNavigation from '@/components/BottomNavigation';
-import SimpleStatusBar from '@/components/SimpleStatusBar';
+import BottomNavigation from '@/components/layout/BottomNavigation';
+import StatusBar from '@/components/layout/StatusBar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -71,7 +71,7 @@ const FinancialInsights: React.FC<FinancialInsightsProps> = () => {
   
   return (
     <div className="min-h-screen bg-gray-50 overflow-auto pb-20">
-      <SimpleStatusBar connectionStatus="online" />
+      <StatusBar />
       
       <div className="px-4 py-4 max-w-5xl mx-auto">
         <div className="flex items-center mb-5">
