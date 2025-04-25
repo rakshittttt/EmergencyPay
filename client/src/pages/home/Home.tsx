@@ -1,53 +1,27 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
 import QuickActionButton from '@/components/layout/QuickActionButton';
 import BalanceCard from '@/components/financial/BalanceCard';
 import StatusBar from '@/components/layout/StatusBar';
+import { useAppContext } from '@/context/AppContext';
 
-// Simplified Home component that doesn't use AppContext
+// Home component now integrated with AppContext
 const Home: React.FC = () => {
-  const [user, setUser] = useState<any>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const { 
+    currentUser: user, 
+    transactions, 
+    essentialServices 
+  } = useAppContext();
   const [, navigate] = useLocation();
-  
-  // Simplified data for essential services
-  const essentialServices = [
-    { id: '1', name: 'Pharmacy', icon: 'ri-medicine-bottle-line', category: 'medical', colorClass: 'bg-red-100 text-red-600' },
-    { id: '2', name: 'Groceries', icon: 'ri-shopping-basket-2-line', category: 'groceries', colorClass: 'bg-green-100 text-green-600' },
-    { id: '3', name: 'Fuel', icon: 'ri-gas-station-line', category: 'fuel', colorClass: 'bg-yellow-100 text-yellow-600' },
-    { id: '4', name: 'Transport', icon: 'ri-taxi-line', category: 'transport', colorClass: 'bg-blue-100 text-blue-600' }
-  ];
-
-  // Fetch user data
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await fetch('/api/user');
-        if (res.ok) {
-          const userData = await res.json();
-          setUser(userData);
-          
-          // After getting user, fetch their transactions
-          if (userData.id) {
-            const transRes = await fetch(`/api/transactions/${userData.id}`);
-            if (transRes.ok) {
-              const transData = await transRes.json();
-              setTransactions(transData);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-    
-    fetchUserData();
-  }, []);
 
   // Limit transactions to 4 most recent ones
-  const recentTransactions = transactions
-    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+  const recentTransactions = [...transactions]
+    .sort((a, b) => {
+      const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+      const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+      return dateB - dateA;
+    })
     .slice(0, 4);
 
   // If no user data yet, show loading
@@ -144,7 +118,12 @@ const Home: React.FC = () => {
         <div className="px-4 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-medium">Essential Services</h3>
-            <button className="text-primary text-sm">View All</button>
+            <button 
+              className="text-primary text-sm"
+              onClick={() => navigate('/merchants')}
+            >
+              View All
+            </button>
           </div>
           <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
             {essentialServices.map((service, index) => (
@@ -196,12 +175,12 @@ const Home: React.FC = () => {
                       {transaction.is_offline ? 'Offline Payment' : 'Payment'}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {new Date(transaction.timestamp).toLocaleDateString('en-IN', { 
+                      {transaction.timestamp ? new Date(transaction.timestamp).toLocaleDateString('en-IN', { 
                         day: 'numeric', 
                         month: 'short', 
                         hour: '2-digit', 
                         minute: '2-digit' 
-                      })}
+                      }) : 'No date'}
                     </p>
                   </div>
                   <div className="text-right">
