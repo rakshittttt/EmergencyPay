@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
-import StatusBar from '@/components/StatusBar';
 import { toast } from '@/hooks/use-toast';
 
 const Profile: React.FC = () => {
@@ -128,8 +127,8 @@ const Profile: React.FC = () => {
         throw new Error('Logout failed');
       }
       
-      // Redirect to login page after successful logout
-      window.location.href = '/login';
+      // Redirect to login page after successful logout using client-side navigation
+      navigate('/login');
     } catch (error) {
       setIsLoggingOut(false);
       if (error instanceof Error) {
@@ -166,7 +165,16 @@ const Profile: React.FC = () => {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
-      <StatusBar />
+      <div className="bg-primary text-white px-4 py-3 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Profile</h2>
+          <p className="text-sm text-white/80">Manage your account</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <div className="w-3 h-3 rounded-full bg-green-400"></div>
+          <span className="text-xs font-medium">Online</span>
+        </div>
+      </div>
       
       <div className="flex-1 overflow-auto scrollbar-hide pb-20">
         <div className="bg-primary text-white py-8 px-4 rounded-b-3xl relative">

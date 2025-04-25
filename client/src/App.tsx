@@ -81,11 +81,32 @@ function App() {
     };
     
     fetchUser();
-  }, [location]);
+  }, []);
   
+  // Update current route and handle authentication status on navigation
   useEffect(() => {
     setCurrentRoute(location);
-  }, [location]);
+    
+    // Only attempt to refetch user if not on login page
+    // and user state is currently null (prevents unnecessary fetches)
+    if (location !== '/login' && !isLoading && !user) {
+      const checkAuth = async () => {
+        try {
+          const res = await fetch('/api/user');
+          if (res.ok) {
+            const userData = await res.json();
+            setUser(userData);
+          } else if (res.status === 401 && location !== '/login') {
+            navigate('/login');
+          }
+        } catch (error) {
+          console.error('Error checking auth status:', error);
+        }
+      };
+      
+      checkAuth();
+    }
+  }, [location, user, isLoading]);
   
   // Initialize real-time updates with Socket.IO
   useEffect(() => {
