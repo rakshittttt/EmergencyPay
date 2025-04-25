@@ -37,8 +37,9 @@ const Login: React.FC = () => {
       
       console.log('Login successful:', responseData);
       
-      // Refresh the page to reload user state
-      window.location.href = '/';
+      // Use the navigate function for client-side routing
+      // This will trigger the useEffect in App.tsx to fetch user data
+      navigate('/');
     } catch (error) {
       setIsLoggingIn(false);
       if (error instanceof Error) {
