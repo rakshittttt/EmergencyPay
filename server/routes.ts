@@ -424,6 +424,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get user by phone number
+  apiRouter.get("/users/phone/:phone", async (req, res) => {
+    try {
+      const phone = req.params.phone;
+      if (!phone || phone.length < 10) {
+        return res.status(400).json({ message: "Invalid phone number" });
+      }
+      
+      const user = await storage.getUserByPhone(phone);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Don't return the private key
+      const { private_key, ...safeUser } = user;
+      res.json(safeUser);
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+  
   // Register a new user
   apiRouter.post("/users", async (req, res) => {
     try {

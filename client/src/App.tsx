@@ -50,6 +50,7 @@ function App() {
               <Route path="/transactions" component={TransactionHistory} />
               <Route path="/merchants" component={Merchants} />
               <Route path="/profile" component={Profile} />
+              <Route path="/direct-transfer" component={DirectTransfer} />
               <Route component={NotFound} />
             </Switch>
           </AnimatePresence>
