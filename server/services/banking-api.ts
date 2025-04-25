@@ -7,7 +7,7 @@
 
 import { log } from '../vite';
 import { emitToAll } from '../socket';
-import { Transaction } from '@shared/schema';
+import { Transaction } from '../../shared/schema';
 
 // Simulated banking API response times (ms)
 const TRANSACTION_TIME = {

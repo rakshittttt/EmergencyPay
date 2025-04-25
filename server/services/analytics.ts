@@ -1,4 +1,4 @@
-import { Transaction, User, Merchant } from '@shared/schema';
+import { Transaction, User, Merchant } from '../../shared/schema';
 
 export interface TransactionSummary {
   totalSpent: number;
