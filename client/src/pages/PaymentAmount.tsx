@@ -66,7 +66,10 @@ const PaymentAmount: React.FC = () => {
       
       if (transaction && transaction.id) {
         console.log("Payment successful, transaction:", transaction);
-        navigate(`/payment-success/${transaction.id}`);
+        // Add a slight delay to allow UI to update before navigation
+        setTimeout(() => {
+          navigate(`/payment-success/${transaction.id}`);
+        }, 300);
       } else {
         console.error("Payment failed - no transaction returned");
         toast({

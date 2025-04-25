@@ -279,10 +279,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const result = await response.json();
         
         if (result.success) {
-          // Get the transaction details
-          const txnResponse = await apiRequest('GET', `/api/transactions/${result.transactionId}`);
-          const transaction = await txnResponse.json();
-          
+          // Show success message immediately
           showToast({
             title: "Payment Successful",
             description: `Paid ₹${amount} via Bluetooth in emergency mode`,
@@ -291,7 +288,45 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           // Refresh the transactions list
           refreshTransactions();
           
-          return transaction;
+          // In emergency mode, create a minimal transaction object to return
+          // This way the UI can still navigate to success page even if GET fails
+          const pendingTransaction: Transaction = {
+            id: result.transactionId,
+            sender_id: currentUser.id,
+            receiver_id: selectedMerchant.user_id,
+            amount: amount.toString(),
+            status: "pending",
+            transaction_code: result.transactionCode || "EMERGENCY",
+            timestamp: new Date(),
+            signature: null,
+            is_offline: true
+          };
+          
+          try {
+            // Try to get transaction details, but don't fail if not found
+            const txnResponse = await apiRequest('GET', `/api/transactions/${result.transactionId}`);
+            const fetchedTransaction = await txnResponse.json();
+            
+            // If we got a valid transaction as an array, use the first one, otherwise use our pending one
+            if (Array.isArray(fetchedTransaction)) {
+              if (fetchedTransaction.length > 0) {
+                // We have a valid transaction in the array
+                return fetchedTransaction[0] as Transaction;
+              } else {
+                // Empty array means no transaction found yet
+                return pendingTransaction;
+              }
+            } else if (fetchedTransaction && typeof fetchedTransaction === 'object') {
+              // We got a single transaction object
+              return fetchedTransaction as Transaction;
+            } else {
+              // Fallback to pending transaction
+              return pendingTransaction;
+            }
+          } catch (error) {
+            console.log("Could not fetch transaction details, using pending transaction", error);
+            return pendingTransaction;
+          }
         } else {
           throw new Error(result.message || 'Payment processing failed');
         }
