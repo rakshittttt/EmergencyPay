@@ -1,9 +1,16 @@
 import { io, Socket } from 'socket.io-client';
 import { toast as showToast } from '@/hooks/use-toast';
 import { queryClient } from './queryClient';
+import { Notification } from '@/context/NotificationContext';
 
 let socket: Socket | null = null;
 let isConnected = false;
+let notificationCallback: ((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => void) | null = null;
+
+// Register notification callback
+export function registerNotificationHandler(callback: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => void): void {
+  notificationCallback = callback;
+}
 
 // Initialize Socket.IO connection
 export function initializeSocket(): Socket {
@@ -48,7 +55,17 @@ export function initializeSocket(): Socket {
     // Invalidate transactions cache to trigger a re-fetch
     queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
     
-    // Don't show toast notification to avoid duplicates with AppContext
+    // Create notification
+    if (notificationCallback && data.status) {
+      const isSuccess = data.status === 'completed';
+      
+      notificationCallback({
+        title: isSuccess ? 'Payment Successful' : 'Payment Processing',
+        message: `Transaction ${data.transactionId} - ${data.message || ''}`,
+        type: 'payment',
+        link: `/transaction/${data.transactionId}`
+      });
+    }
   });
   
   // Balance updates
@@ -58,7 +75,15 @@ export function initializeSocket(): Socket {
     // Invalidate user cache to refresh balances
     queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     
-    // Show toast notification
+    // Create notification and show toast
+    if (notificationCallback) {
+      notificationCallback({
+        title: 'Balance Updated',
+        message: data.message,
+        type: 'system'
+      });
+    }
+    
     showToast({
       title: 'Balance Updated',
       description: data.message,
@@ -74,7 +99,15 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
     
-    // Don't show toast notification to avoid duplicates with AppContext
+    // Create notification
+    if (notificationCallback) {
+      notificationCallback({
+        title: 'Emergency Payment Complete',
+        message: `Transaction ${data.transactionId} has been completed in emergency mode`,
+        type: 'emergency',
+        link: `/transaction/${data.transactionId}`
+      });
+    }
   });
   
   // User updates
@@ -83,6 +116,15 @@ export function initializeSocket(): Socket {
     
     // Invalidate user cache
     queryClient.invalidateQueries({ queryKey: ['/api/user'] });
+    
+    // Create notification if update includes important information
+    if (notificationCallback && data.message) {
+      notificationCallback({
+        title: 'Account Updated',
+        message: data.message,
+        type: 'system'
+      });
+    }
   });
   
   // Reconciliation updates
@@ -93,16 +135,26 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
     
-    // Only show toast notification if there are completed transactions
+    // Only show notification if there are completed transactions
     const completedCount = data.results.filter((r: any) => r.status === 'completed').length;
     
     if (completedCount > 0) {
+      // Show toast notification
       showToast({
         title: 'Reconciliation Complete',
         description: `${completedCount} transaction(s) have been processed`,
         variant: 'default',
         duration: 5000,
       });
+      
+      // Create notification
+      if (notificationCallback) {
+        notificationCallback({
+          title: 'Transactions Reconciled',
+          message: `${completedCount} offline transaction(s) have been successfully processed now that you're back online`,
+          type: 'reconciliation'
+        });
+      }
     }
   });
   

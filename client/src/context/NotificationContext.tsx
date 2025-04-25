@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { toast } from '@/hooks/use-toast';
 import { useAppContext } from './AppContext';
 import { Transaction } from '@shared/schema';
+import { registerNotificationHandler } from '@/lib/socket';
 
 // Notification type
 export interface Notification {
@@ -126,6 +127,11 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       }
     }
   }, [transactions]);
+  
+  // Register the notification handler for socket events
+  useEffect(() => {
+    registerNotificationHandler(addNotification);
+  }, []);
   
   const contextValue: NotificationContextType = {
     notifications,
