@@ -30,8 +30,10 @@ export function registerSocketNotificationHandler(handler: NotificationHandler):
 export function initializeSocket(): Socket {
   if (socket) return socket;
 
-  // Initialize socket with correct URL format
-  socket = io({
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const socketUrl = `${protocol}//${window.location.host}`;
+  
+  socket = io(socketUrl, {
     path: '/socket.io',
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
