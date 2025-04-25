@@ -53,7 +53,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         console.error('Error fetching user:', error);
         return null;
       }
-    }
+    },
+    // Ensure we always return User | null (not undefined)
+    select: (data) => data || null
   });
 
   // Fetch transactions

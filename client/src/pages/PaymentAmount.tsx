@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useParams } from 'wouter';
 import { useAppContext } from '@/context/AppContext';
+import { toast } from '@/hooks/use-toast';
 
 const PaymentAmount: React.FC = () => {
   const { id } = useParams();
@@ -50,8 +51,12 @@ const PaymentAmount: React.FC = () => {
     const parsedAmount = parseFloat(amount);
     
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
-      // Show some error to the user
-      alert("Please enter a valid amount");
+      // Show error using toast
+      toast({
+        title: "Invalid amount",
+        description: "Please enter a valid amount",
+        variant: "destructive"
+      });
       setIsProcessing(false);
       return;
     }
@@ -64,18 +69,33 @@ const PaymentAmount: React.FC = () => {
         navigate(`/payment-success/${transaction.id}`);
       } else {
         console.error("Payment failed - no transaction returned");
-        alert("Payment failed. Please try again.");
+        toast({
+          title: "Payment Failed",
+          description: "Your payment could not be processed. Please try again.",
+          variant: "destructive"
+        });
       }
     } catch (error) {
       console.error("Payment error:", error);
-      alert("An error occurred during payment. Please try again.");
+      toast({
+        title: "Payment Error",
+        description: "An error occurred during payment processing. Please try again.",
+        variant: "destructive"
+      });
     } finally {
       setIsProcessing(false);
     }
   };
   
   if (!selectedMerchant) {
-    return null; // Or a loading spinner
+    return (
+      <div className="fixed inset-0 bg-white z-40 flex items-center justify-center">
+        <div className="flex flex-col items-center">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-gray-600">Loading merchant details...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -141,12 +161,34 @@ const PaymentAmount: React.FC = () => {
             <div className="flex justify-between mb-2">
               <span className="text-gray-600">Mode</span>
               <span className="text-gray-800 font-medium flex items-center">
-                <i className="ri-bluetooth-line mr-1"></i> Bluetooth (Offline)
+                {isEmergencyMode ? (
+                  <>
+                    <i className="ri-bluetooth-line mr-1"></i> Bluetooth (Offline)
+                  </>
+                ) : (
+                  <>
+                    <i className="ri-bank-card-line mr-1"></i> Regular UPI
+                  </>
+                )}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Status</span>
-              <span className="text-amber-600 font-medium">Will sync when online</span>
+              {isEmergencyMode ? (
+                <span className="text-amber-600 font-medium">Will sync when online</span>
+              ) : (
+                <span className="text-green-600 font-medium">Online Payment</span>
+              )}
+            </div>
+            <div className="flex justify-between mt-2">
+              <span className="text-gray-600">Using Balance</span>
+              <span className="font-medium">
+                {isEmergencyMode ? (
+                  <span className="text-amber-600">Emergency Balance</span>
+                ) : (
+                  <span className="text-gray-800">Regular Balance</span>
+                )}
+              </span>
             </div>
           </motion.div>
           

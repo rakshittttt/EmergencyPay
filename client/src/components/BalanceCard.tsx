@@ -2,8 +2,16 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useAppContext } from '@/context/AppContext';
 
-const BalanceCard: React.FC = () => {
+export interface BalanceCardProps {
+  balance?: string;
+  emergencyBalance?: string;
+}
+
+const BalanceCard: React.FC<BalanceCardProps> = (props) => {
   const { currentUser } = useAppContext();
+  // Use props if provided, otherwise use from context
+  const balanceString = props.balance !== undefined ? props.balance : (currentUser?.balance || '0');
+  const emergencyBalanceString = props.emergencyBalance !== undefined ? props.emergencyBalance : (currentUser?.emergency_balance || '0');
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-IN', {
@@ -15,8 +23,8 @@ const BalanceCard: React.FC = () => {
   };
 
   // Calculate available balance
-  const availableBalance = currentUser ? Number(currentUser.balance) : 0;
-  const emergencyBalance = currentUser ? Number(currentUser.emergency_balance) : 0;
+  const availableBalance = Number(balanceString);
+  const emergencyBalanceAmount = Number(emergencyBalanceString);
 
   return (
     <motion.div 
@@ -35,7 +43,7 @@ const BalanceCard: React.FC = () => {
       <div className="flex justify-between mt-4">
         <div>
           <p className="text-white/80 text-xs">Emergency Balance</p>
-          <p className="font-medium">{formatCurrency(emergencyBalance)}</p>
+          <p className="font-medium">{formatCurrency(emergencyBalanceAmount)}</p>
         </div>
         <button className="bg-white/20 hover:bg-white/30 text-white text-sm px-3 py-1 rounded-lg transition-colors">
           Add Money
