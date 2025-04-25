@@ -1,6 +1,6 @@
 import { Switch, Route, useLocation, Redirect } from "wouter";
 import { AnimatePresence } from "framer-motion";
-import Home from "@/pages/Home";
+import Home from "@/pages/home/Home";
 import QRScan from "@/pages/payment/QRScan";
 import BluetoothPayment from "@/pages/payment/BluetoothPayment";
 import PaymentAmount from "@/pages/payment/PaymentAmount";
@@ -17,9 +17,6 @@ import { useEffect, useState } from "react";
 import { AppProvider, useAppContext } from "@/context/AppContext";
 import { initializeSocket } from "@/lib/socket";
 import { Toaster } from "@/components/ui/toaster";
-
-// This is just the app component itself
-// The AppProvider is now in main.tsx
 
 // This component handles the protected routes
 const ProtectedRoute = ({ component: Component, ...rest }: { component: React.FC, path: string }) => {

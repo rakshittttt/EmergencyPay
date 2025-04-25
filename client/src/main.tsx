@@ -5,13 +5,16 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import App from "./App";
 import "./index.css";
+import { AppProvider } from "@/context/AppContext";
 
 // Create a simple app with essential providers
 const Root = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <App />
+        <AppProvider>
+          <App />
+        </AppProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
