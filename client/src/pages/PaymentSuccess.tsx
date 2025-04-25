@@ -7,7 +7,7 @@ import { Transaction } from '@shared/schema';
 const PaymentSuccess: React.FC = () => {
   const { id } = useParams();
   const [, navigate] = useLocation();
-  const { transactions, merchants, currentUser, refreshTransactions } = useAppContext();
+  const { transactions, merchants, currentUser, refreshTransactions, isEmergencyMode } = useAppContext();
   const [loading, setLoading] = useState(true);
   const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [merchant, setMerchant] = useState<any | null>(null);
@@ -113,7 +113,11 @@ const PaymentSuccess: React.FC = () => {
             <i className="ri-checkbox-circle-fill text-4xl text-green-600"></i>
           </div>
           <h3 className="text-2xl font-bold">Payment Successful!</h3>
-          <p className="text-gray-600 mt-2">Your transaction has been stored locally</p>
+          <p className="text-gray-600 mt-2">
+            {(isEmergencyMode || transaction.is_offline) 
+              ? "Your transaction has been stored locally" 
+              : "Your payment has been processed successfully"}
+          </p>
         </motion.div>
         
         <motion.div 
@@ -146,20 +150,26 @@ const PaymentSuccess: React.FC = () => {
           </div>
         </motion.div>
         
-        <motion.div 
-          className="bg-amber-50 rounded-lg p-4 mb-8 text-left w-full max-w-sm"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.3 }}
-        >
-          <div className="flex">
-            <i className="ri-information-line text-amber-500 mt-0.5 mr-3 text-lg flex-shrink-0"></i>
-            <div>
-              <h3 className="font-medium text-amber-700">Offline Transaction</h3>
-              <p className="text-sm text-amber-700/80">This transaction will be synced with your bank when network connectivity is restored.</p>
+        {(isEmergencyMode || transaction.is_offline) && (
+          <motion.div 
+            className="bg-amber-50 rounded-lg p-4 mb-8 text-left w-full max-w-sm"
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.3 }}
+          >
+            <div className="flex">
+              <i className="ri-information-line text-amber-500 mt-0.5 mr-3 text-lg flex-shrink-0"></i>
+              <div>
+                <h3 className="font-medium text-amber-700">Offline Transaction</h3>
+                <p className="text-sm text-amber-700/80">
+                  {transaction.status === "pending" 
+                    ? "This transaction will be synced with your bank when network connectivity is restored."
+                    : "This transaction was made in emergency mode and has been processed."}
+                </p>
+              </div>
             </div>
-          </div>
-        </motion.div>
+          </motion.div>
+        )}
         
         <motion.div 
           className="space-y-3 w-full max-w-sm"

@@ -42,7 +42,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
 
   // Fetch current user
-  const { data: currentUser, refetch: refetchUser } = useQuery<User | null>({
+  const { data: userData, refetch: refetchUser } = useQuery<User | null>({
     queryKey: ['/api/user'],
     queryFn: async () => {
       try {
@@ -57,6 +57,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // Ensure we always return User | null (not undefined)
     select: (data) => data || null
   });
+  
+  // Ensure currentUser is always User | null, never undefined
+  const currentUser: User | null = userData || null;
 
   // Fetch transactions
   const { data: transactions = [], refetch: refetchTransactions } = useQuery<Transaction[]>({
@@ -444,7 +447,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     connectionStatus,
     isEmergencyMode,
     toggleEmergencyMode,
-    currentUser,
+    currentUser, // We already made sure this is User | null
     currentRoute,
     setCurrentRoute,
     transactions,
