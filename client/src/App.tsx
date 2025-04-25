@@ -8,6 +8,7 @@ import PaymentSuccess from "@/pages/PaymentSuccess";
 import TransactionHistory from "@/pages/TransactionHistory";
 import Merchants from "@/pages/Merchants";
 import Profile from "@/pages/Profile";
+import DirectTransfer from "@/pages/DirectTransfer";
 import NotFound from "@/pages/not-found";
 import BottomNavigation from "@/components/BottomNavigation";
 import { useEffect, useState } from "react";

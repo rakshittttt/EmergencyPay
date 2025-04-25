@@ -50,15 +50,27 @@ const PaymentAmount: React.FC = () => {
     const parsedAmount = parseFloat(amount);
     
     if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      // Show some error to the user
+      alert("Please enter a valid amount");
       setIsProcessing(false);
       return;
     }
     
-    const transaction = await initiatePayment(parsedAmount);
-    setIsProcessing(false);
-    
-    if (transaction) {
-      navigate(`/payment-success/${transaction.id}`);
+    try {
+      const transaction = await initiatePayment(parsedAmount);
+      
+      if (transaction && transaction.id) {
+        console.log("Payment successful, transaction:", transaction);
+        navigate(`/payment-success/${transaction.id}`);
+      } else {
+        console.error("Payment failed - no transaction returned");
+        alert("Payment failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("An error occurred during payment. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
   };
   

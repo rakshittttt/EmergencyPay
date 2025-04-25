@@ -1,27 +1,53 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useParams } from 'wouter';
 import { useAppContext } from '@/context/AppContext';
 import { Transaction } from '@shared/schema';
-import { useQuery } from '@tanstack/react-query';
 
 const PaymentSuccess: React.FC = () => {
   const { id } = useParams();
   const [, navigate] = useLocation();
   const { transactions, merchants, currentUser, refreshTransactions } = useAppContext();
-  
-  // Find the transaction
-  const transaction = transactions.find(t => t.id === parseInt(id));
-  
-  // Get merchant info
-  const merchant = transaction 
-    ? merchants.find(m => m.user_id === transaction.receiver_id)
-    : null;
+  const [loading, setLoading] = useState(true);
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
+  const [merchant, setMerchant] = useState<any | null>(null);
   
   useEffect(() => {
     // Refresh transactions to make sure we have the latest data
     refreshTransactions();
-  }, [refreshTransactions]);
+    
+    // If we have an invalid ID, navigate back to home
+    if (!id || id === 'undefined') {
+      console.error('Invalid transaction ID:', id);
+      navigate('/');
+      return;
+    }
+    
+    // Set a timeout to ensure we have the latest transactions
+    const timeoutId = setTimeout(() => {
+      // Find the transaction
+      const foundTransaction = transactions.find(t => t.id === parseInt(id));
+      
+      if (foundTransaction) {
+        setTransaction(foundTransaction);
+        
+        // Get merchant info
+        const foundMerchant = merchants.find(m => m.user_id === foundTransaction.receiver_id);
+        if (foundMerchant) {
+          setMerchant(foundMerchant);
+        }
+      } else {
+        // If we can't find the transaction after the timeout, 
+        // navigate back to home
+        console.error('Could not find transaction with ID:', id);
+        navigate('/');
+      }
+      
+      setLoading(false);
+    }, 1500);
+    
+    return () => clearTimeout(timeoutId);
+  }, [id, transactions, merchants, refreshTransactions, navigate]);
   
   const handleBackToHome = () => {
     navigate('/');
@@ -57,7 +83,7 @@ const PaymentSuccess: React.FC = () => {
     });
   };
   
-  if (!transaction || !merchant) {
+  if (loading || !transaction || !merchant) {
     return (
       <div className="fixed inset-0 bg-white z-40 flex items-center justify-center">
         <div className="text-center">
@@ -107,12 +133,16 @@ const PaymentSuccess: React.FC = () => {
           <div className="flex justify-between mb-3">
             <span className="text-gray-600">Date & Time</span>
             <span className="text-gray-800 font-medium">
-              {formatDate(transaction.timestamp.toString())} • {formatTime(transaction.timestamp.toString())}
+              {transaction.timestamp ? 
+                `${formatDate(transaction.timestamp.toString())} • ${formatTime(transaction.timestamp.toString())}` : 
+                'Just now'}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Transaction ID</span>
-            <span className="text-gray-800 font-medium">{transaction.transaction_code}</span>
+            <span className="text-gray-800 font-medium">
+              {transaction.transaction_code || `TXN${transaction.id}`}
+            </span>
           </div>
         </motion.div>
         
