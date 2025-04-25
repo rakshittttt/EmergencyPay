@@ -1,15 +1,29 @@
 import { io, Socket } from 'socket.io-client';
 import { toast as showToast } from '@/hooks/use-toast';
 import { queryClient } from './queryClient';
-import { Notification } from '@/context/NotificationContext';
 
+// Socket globals
 let socket: Socket | null = null;
 let isConnected = false;
-let notificationCallback: ((notification: Omit<Notification, 'id' | 'timestamp' | 'read'>, showToast?: boolean) => void) | null = null;
 
-// Register notification callback
-export function registerNotificationHandler(callback: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>, showToast?: boolean) => void): void {
-  notificationCallback = callback;
+// Notification handler type
+export type NotificationData = {
+  title: string;
+  message: string;
+  type: 'payment' | 'emergency' | 'reconciliation' | 'system';
+  link?: string;
+  showToast?: boolean;
+};
+
+type NotificationHandler = (data: NotificationData) => void;
+let notificationHandler: NotificationHandler | null = null;
+
+// Register notification handler function with cleanup
+export function registerSocketNotificationHandler(handler: NotificationHandler): () => void {
+  notificationHandler = handler;
+  return () => {
+    notificationHandler = null;
+  };
 }
 
 // Initialize Socket.IO connection
@@ -56,17 +70,17 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
     
     // Create notification
-    if (notificationCallback && data.status) {
+    if (notificationHandler && data.status) {
       const isSuccess = data.status === 'completed';
       
       // Show toast for completed transactions only
-      notificationCallback({
+      notificationHandler({
         title: isSuccess ? 'Payment Successful' : 'Payment Processing',
         message: `Transaction ${data.transactionId} - ${data.message || ''}`,
         type: 'payment',
         link: `/transaction/${data.transactionId}`,
-        sourceId: `socket-transaction-${data.transactionId}`
-      }, isSuccess); // Only show toast for successful payments
+        showToast: isSuccess
+      });
     }
   });
   
@@ -78,13 +92,13 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     
     // Create notification with toast
-    if (notificationCallback) {
-      notificationCallback({
+    if (notificationHandler) {
+      notificationHandler({
         title: 'Balance Updated',
         message: data.message,
         type: 'system',
-        sourceId: `socket-balance-update-${Date.now()}`
-      }, true); // Show toast only through notification system
+        showToast: true
+      });
     }
   });
   
@@ -97,14 +111,14 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
     
     // Create notification with toast
-    if (notificationCallback) {
-      notificationCallback({
+    if (notificationHandler) {
+      notificationHandler({
         title: 'Emergency Payment Complete',
         message: `Transaction ${data.transactionId} has been completed in emergency mode`,
         type: 'emergency',
         link: `/transaction/${data.transactionId}`,
-        sourceId: `socket-emergency-transaction-${data.transactionId}`
-      }, true); // Show toast for emergency payments
+        showToast: true
+      });
     }
   });
   
@@ -116,12 +130,11 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     
     // Create notification if update includes important information
-    if (notificationCallback && data.message) {
-      notificationCallback({
+    if (notificationHandler && data.message) {
+      notificationHandler({
         title: 'Account Updated',
         message: data.message,
-        type: 'system',
-        sourceId: `socket-user-update-${Date.now()}`
+        type: 'system'
       });
     }
   });
@@ -137,17 +150,14 @@ export function initializeSocket(): Socket {
     // Only show notification if there are completed transactions
     const completedCount = data.results.filter((r: any) => r.status === 'completed').length;
     
-    if (completedCount > 0 && notificationCallback) {
-      // Use timestamp to create a unique reconciliation ID to prevent duplicates
-      const reconciliationId = `reconciliation-${Date.now()}`;
-      
+    if (completedCount > 0 && notificationHandler) {
       // Create notification with toast
-      notificationCallback({
+      notificationHandler({
         title: 'Transactions Reconciled',
         message: `${completedCount} offline transaction(s) have been successfully processed now that you're back online`,
         type: 'reconciliation',
-        sourceId: reconciliationId
-      }, true); // Show toast through notification system
+        showToast: true
+      });
     }
   });
   
