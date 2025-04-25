@@ -64,7 +64,8 @@ export function initializeSocket(): Socket {
         title: isSuccess ? 'Payment Successful' : 'Payment Processing',
         message: `Transaction ${data.transactionId} - ${data.message || ''}`,
         type: 'payment',
-        link: `/transaction/${data.transactionId}`
+        link: `/transaction/${data.transactionId}`,
+        sourceId: `socket-transaction-${data.transactionId}`
       }, isSuccess); // Only show toast for successful payments
     }
   });
@@ -81,7 +82,8 @@ export function initializeSocket(): Socket {
       notificationCallback({
         title: 'Balance Updated',
         message: data.message,
-        type: 'system'
+        type: 'system',
+        sourceId: `socket-balance-update-${Date.now()}`
       }, true); // Show toast only through notification system
     }
   });
@@ -100,7 +102,8 @@ export function initializeSocket(): Socket {
         title: 'Emergency Payment Complete',
         message: `Transaction ${data.transactionId} has been completed in emergency mode`,
         type: 'emergency',
-        link: `/transaction/${data.transactionId}`
+        link: `/transaction/${data.transactionId}`,
+        sourceId: `socket-emergency-transaction-${data.transactionId}`
       }, true); // Show toast for emergency payments
     }
   });
@@ -117,7 +120,8 @@ export function initializeSocket(): Socket {
       notificationCallback({
         title: 'Account Updated',
         message: data.message,
-        type: 'system'
+        type: 'system',
+        sourceId: `socket-user-update-${Date.now()}`
       });
     }
   });
@@ -134,11 +138,15 @@ export function initializeSocket(): Socket {
     const completedCount = data.results.filter((r: any) => r.status === 'completed').length;
     
     if (completedCount > 0 && notificationCallback) {
+      // Use timestamp to create a unique reconciliation ID to prevent duplicates
+      const reconciliationId = `reconciliation-${Date.now()}`;
+      
       // Create notification with toast
       notificationCallback({
         title: 'Transactions Reconciled',
         message: `${completedCount} offline transaction(s) have been successfully processed now that you're back online`,
-        type: 'reconciliation'
+        type: 'reconciliation',
+        sourceId: reconciliationId
       }, true); // Show toast through notification system
     }
   });
