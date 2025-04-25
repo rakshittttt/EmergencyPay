@@ -359,6 +359,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const transactions = await storage.getTransactionsByUser(userId);
     res.json(transactions);
   });
+  
+  // Get a specific transaction
+  apiRouter.get("/transaction/:id", async (req, res) => {
+    const id = parseInt(req.params.id);
+    if (isNaN(id)) {
+      return res.status(400).json({ message: "Invalid transaction ID" });
+    }
+    
+    const transaction = await storage.getTransaction(id);
+    if (!transaction) {
+      return res.status(404).json({ message: "Transaction not found" });
+    }
+    
+    res.json(transaction);
+  });
 
   // Get all merchants
   apiRouter.get("/merchants", async (_req, res) => {
@@ -382,6 +397,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const merchant = await storage.getMerchant(id);
     if (!merchant) {
       return res.status(404).json({ message: "Merchant not found" });
+    }
+    
+    res.json(merchant);
+  });
+  
+  // Get merchant by user ID
+  apiRouter.get("/merchant/:userId", async (req, res) => {
+    const userId = parseInt(req.params.userId);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID" });
+    }
+    
+    // Get all merchants
+    const merchants = await storage.getMerchants();
+    
+    // Find merchant with user_id = userId
+    const merchant = merchants.find(m => m.user_id === userId);
+    if (!merchant) {
+      return res.status(404).json({ message: "Merchant not found for this user" });
     }
     
     res.json(merchant);
