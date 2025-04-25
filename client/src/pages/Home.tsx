@@ -62,7 +62,7 @@ const Home: React.FC = () => {
         {/* Quick Actions */}
         <div className="px-4 mb-8">
           <h3 className="text-lg font-medium mb-4">Quick Actions</h3>
-          <div className="grid grid-cols-4 gap-4 mb-4">
+          <div className="grid grid-cols-4 gap-4">
             <QuickActionButton 
               icon="ri-qr-scan-line" 
               label="Scan QR" 
@@ -87,25 +87,6 @@ const Home: React.FC = () => {
               path="/transactions"
               delay={3}
             />
-          </div>
-          
-          {/* Direct Transfer Button */}
-          <div>
-            <button 
-              onClick={() => navigate('/direct-transfer')}
-              className="w-full bg-primary-50 border border-primary-100 rounded-lg p-3 flex items-center justify-between hover:bg-primary-100 transition-all"
-            >
-              <div className="flex items-center">
-                <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center mr-3">
-                  <i className="ri-user-3-line text-primary"></i>
-                </div>
-                <div className="text-left">
-                  <h4 className="font-medium">Send to Phone Number</h4>
-                  <p className="text-sm text-gray-600">Transfer directly to any account</p>
-                </div>
-              </div>
-              <i className="ri-arrow-right-line text-primary"></i>
-            </button>
           </div>
         </div>
         

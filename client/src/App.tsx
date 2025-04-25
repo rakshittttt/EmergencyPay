@@ -34,8 +34,7 @@ function App() {
     location.includes("/qr-scan") || 
     location.includes("/bluetooth-payment") || 
     location.includes("/payment-amount") || 
-    location.includes("/payment-success") ||
-    location.includes("/direct-transfer");
+    location.includes("/payment-success");
   
   return (
     <AppProvider>
@@ -51,7 +50,7 @@ function App() {
               <Route path="/transactions" component={TransactionHistory} />
               <Route path="/merchants" component={Merchants} />
               <Route path="/profile" component={Profile} />
-              <Route path="/direct-transfer" component={DirectTransfer} />
+
               <Route component={NotFound} />
             </Switch>
           </AnimatePresence>
