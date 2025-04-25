@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { useAppContext } from './AppContext';
-import { registerSocketNotificationHandler } from '@/lib/socket';
+import { registerSocketNotificationHandler, NotificationData } from '@/lib/socket';
 
 // Notification type
 export interface Notification {
