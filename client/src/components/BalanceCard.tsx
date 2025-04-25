@@ -1,22 +1,28 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useAppContext } from '@/context/AppContext';
+import { useLocation } from 'wouter';
 
-const BalanceCard: React.FC = () => {
-  const { currentUser } = useAppContext();
+interface BalanceCardProps {
+  balance: string | number;
+  emergencyBalance: string | number;
+}
 
-  const formatCurrency = (amount: number) => {
+const BalanceCard: React.FC<BalanceCardProps> = ({ balance, emergencyBalance }) => {
+  const [, navigate] = useLocation();
+
+  const formatCurrency = (amount: number | string) => {
+    const numAmount = typeof amount === 'string' ? Number(amount) : amount;
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
       currency: 'INR',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
-    }).format(amount).replace('₹', '₹ ');
+    }).format(numAmount).replace('₹', '₹ ');
   };
 
   // Calculate available balance
-  const availableBalance = currentUser ? Number(currentUser.balance) : 0;
-  const emergencyBalance = currentUser ? Number(currentUser.emergency_balance) : 0;
+  const availableBalance = Number(balance);
+  const emergencyBalanceNum = Number(emergencyBalance);
 
   return (
     <motion.div 
@@ -37,7 +43,10 @@ const BalanceCard: React.FC = () => {
           <p className="text-white/80 text-xs">Emergency Balance</p>
           <p className="font-medium">{formatCurrency(emergencyBalance)}</p>
         </div>
-        <button className="bg-white/20 hover:bg-white/30 text-white text-sm px-3 py-1 rounded-lg transition-colors">
+        <button 
+          onClick={() => navigate('/add-funds')}
+          className="bg-white/20 hover:bg-white/30 text-white text-sm px-3 py-1 rounded-lg transition-colors"
+        >
           Add Money
         </button>
       </div>

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'wouter';
-import StatusBar from '@/components/StatusBar';
 import QuickActionButton from '@/components/QuickActionButton';
+import BalanceCard from '@/components/BalanceCard';
 
 // Simplified Home component that doesn't use AppContext
 const Home: React.FC = () => {
@@ -93,24 +93,7 @@ const Home: React.FC = () => {
         
         {/* Balance Card */}
         <div className="mx-4 mb-6">
-          <div className="bg-primary text-white p-4 rounded-xl">
-            <div className="mb-2">
-              <h3 className="text-sm font-medium text-white/80">Balance</h3>
-              <div className="text-2xl font-bold">₹{Number(user.balance).toLocaleString('en-IN')}</div>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-medium text-white/80">Emergency Balance</h3>
-                <div className="text-lg font-bold">₹{Number(user.emergency_balance).toLocaleString('en-IN')}</div>
-              </div>
-              <button 
-                onClick={() => navigate('/add-funds')}
-                className="bg-white text-primary px-3 py-1.5 rounded-md text-sm font-medium"
-              >
-                Add Money
-              </button>
-            </div>
-          </div>
+          <BalanceCard balance={user.balance} emergencyBalance={user.emergency_balance} />
         </div>
         
         {/* Quick Actions */}
