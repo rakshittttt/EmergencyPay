@@ -70,7 +70,7 @@ const FinancialInsights: React.FC<FinancialInsightsProps> = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 overflow-auto pb-20">
       <SimpleStatusBar connectionStatus="online" />
       
       <div className="px-4 py-4 max-w-5xl mx-auto">
