@@ -204,7 +204,7 @@ const FinancialInsights: React.FC<FinancialInsightsProps> = () => {
                 </>
               ) : (
                 <div className="space-y-3">
-                  {insightsData?.categoryBreakdowns.map((category, index) => (
+                  {insightsData?.categoryBreakdowns.map((category: { category: string; amount: number; percentage: number; count: number }, index: number) => (
                     <div key={index}>
                       <div className="flex justify-between items-center mb-1">
                         <span className="capitalize">{category.category}</span>
@@ -235,7 +235,7 @@ const FinancialInsights: React.FC<FinancialInsightsProps> = () => {
                 </>
               ) : (
                 <div className="space-y-4">
-                  {insightsData?.topMerchants.map((merchant, index) => (
+                  {insightsData?.topMerchants.map((merchant: { merchantId: number; merchantName: string; totalSpent: number; transactionCount: number; frequency: string; averageAmount: number }, index: number) => (
                     <div key={index} className="flex justify-between items-center">
                       <div>
                         <p className="font-medium">{merchant.merchantName}</p>
@@ -265,7 +265,7 @@ const FinancialInsights: React.FC<FinancialInsightsProps> = () => {
                 </>
               ) : (
                 <ul className="space-y-3">
-                  {insightsData?.insights.map((insight, index) => (
+                  {insightsData?.insights.map((insight: string, index: number) => (
                     <li key={index} className="flex items-start">
                       <div className="h-6 w-6 rounded-full bg-blue-100 flex items-center justify-center mr-3 mt-0.5">
                         <span className="text-blue-600 text-sm font-bold">{index + 1}</span>
@@ -294,7 +294,7 @@ const FinancialInsights: React.FC<FinancialInsightsProps> = () => {
                 </>
               ) : (
                 <ul className="space-y-3">
-                  {insightsData?.recommendations.map((recommendation, index) => (
+                  {insightsData?.recommendations.map((recommendation: string, index: number) => (
                     <li key={index} className="flex items-start">
                       <div className="h-6 w-6 rounded-full bg-yellow-100 flex items-center justify-center mr-3 mt-0.5">
                         <span className="text-yellow-600 text-sm font-bold">{index + 1}</span>

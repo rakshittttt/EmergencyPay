@@ -128,6 +128,20 @@ const Home: React.FC = () => {
               delay={3}
             />
           </div>
+          <div className="mt-4 bg-gradient-to-r from-indigo-500 to-purple-600 p-4 rounded-lg shadow-md cursor-pointer" onClick={() => navigate('/financial-insights')}>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-white font-bold">Financial Insights</h3>
+                <p className="text-white/80 text-sm mt-1">Get personalized analysis of your spending</p>
+              </div>
+              <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                <i className="ri-pie-chart-line text-white text-xl"></i>
+              </div>
+            </div>
+            <div className="mt-3 bg-white/20 rounded-full h-1.5">
+              <div className="bg-white rounded-full h-1.5 w-5/6"></div>
+            </div>
+          </div>
         </div>
         
         {/* Essential Services */}

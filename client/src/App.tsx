@@ -9,6 +9,7 @@ import TransactionHistory from "@/pages/TransactionHistory";
 import Merchants from "@/pages/Merchants";
 import Profile from "@/pages/Profile";
 import AddFunds from "@/pages/AddFunds";
+import FinancialInsights from "@/pages/FinancialInsights";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/not-found";
 import BottomNavigation from "@/components/BottomNavigation";
@@ -227,6 +228,9 @@ function App() {
                   </button>
                 </div>
               </div>
+            </Route>
+            <Route path="/financial-insights">
+              <FinancialInsights />
             </Route>
             <Route>
               <NotFound />
