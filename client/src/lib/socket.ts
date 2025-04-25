@@ -48,12 +48,7 @@ export function initializeSocket(): Socket {
     // Invalidate transactions cache to trigger a re-fetch
     queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
     
-    // Show toast notification
-    showToast({
-      title: data.status === 'completed' ? 'Transaction Completed' : 'Transaction Failed',
-      description: data.message,
-      variant: data.status === 'completed' ? 'default' : 'destructive',
-    });
+    // Don't show toast notification to avoid duplicates with AppContext
   });
   
   // Balance updates
@@ -79,13 +74,7 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
     
-    // Show toast notification
-    showToast({
-      title: 'Emergency Payment Successful',
-      description: `Your offline payment has been processed via ${data.method}`,
-      variant: 'default',
-      duration: 5000,
-    });
+    // Don't show toast notification to avoid duplicates with AppContext
   });
   
   // User updates
@@ -104,15 +93,17 @@ export function initializeSocket(): Socket {
     queryClient.invalidateQueries({ queryKey: ['/api/user'] });
     queryClient.invalidateQueries({ queryKey: ['/api/transactions'] });
     
-    // Show toast notification
+    // Only show toast notification if there are completed transactions
     const completedCount = data.results.filter((r: any) => r.status === 'completed').length;
     
-    showToast({
-      title: 'Reconciliation Complete',
-      description: `${completedCount} transaction(s) have been processed`,
-      variant: 'default',
-      duration: 5000,
-    });
+    if (completedCount > 0) {
+      showToast({
+        title: 'Reconciliation Complete',
+        description: `${completedCount} transaction(s) have been processed`,
+        variant: 'default',
+        duration: 5000,
+      });
+    }
   });
   
   return socket;
