@@ -1,10 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useLocation } from 'wouter';
 import { useAppContext } from '@/context/AppContext';
 import EmergencyToggle from './EmergencyToggle';
 
 const StatusBar: React.FC = () => {
   const { connectionStatus } = useAppContext();
+  const [, navigate] = useLocation();
 
   // Determine status indicator color
   const getStatusColor = () => {
@@ -101,6 +103,12 @@ const StatusBar: React.FC = () => {
       </div>
       <div className="flex items-center space-x-4">
         <EmergencyToggle />
+        <button 
+          className="relative flex items-center justify-center h-8 w-8 rounded-full hover:bg-gray-100"
+          onClick={() => navigate('/transactions')}
+        >
+          <i className="ri-notification-3-line text-lg text-gray-600"></i>
+        </button>
       </div>
     </div>
   );
