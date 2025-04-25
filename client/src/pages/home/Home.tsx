@@ -74,10 +74,6 @@ const Home: React.FC = () => {
           <h2 className="text-xl font-semibold">EmergencyPay</h2>
           <p className="text-sm text-white/80">Offline payments made simple</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 rounded-full bg-green-400"></div>
-          <span className="text-xs font-medium">Online</span>
-        </div>
       </div>
       
       <StatusBar />
