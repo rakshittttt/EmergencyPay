@@ -13,9 +13,9 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase conditionally
-let firebaseApp;
-let auth;
-let googleProvider;
+let firebaseApp: any;
+let auth: any;
+let googleProvider: any;
 
 try {
   // Only initialize if the required environment variables are available

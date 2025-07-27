@@ -14,7 +14,7 @@ const TransactionHistory: React.FC = () => {
   
   // Sort transactions by date, most recent first
   const sortedTransactions = [...transactions].sort(
-    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    (a, b) => new Date(b.timestamp || 0).getTime() - new Date(a.timestamp || 0).getTime()
   );
   
   // Get pending transactions

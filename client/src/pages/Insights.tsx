@@ -67,7 +67,7 @@ const Insights: React.FC = () => {
       const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0);
       
       const monthlyTransactions = transactions.filter(txn => {
-        const txnDate = new Date(txn.timestamp);
+        const txnDate = new Date(txn.timestamp || 0);
         return txnDate >= monthStart && txnDate <= monthEnd && txn.sender_id === currentUser?.id;
       });
       

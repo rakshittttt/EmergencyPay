@@ -81,6 +81,10 @@ const AuthPage: React.FC = () => {
     setLoading(true);
     
     try {
+      if (!auth) {
+        throw new Error('Firebase authentication is not configured');
+      }
+      
       if (isLogin) {
         // Login with email/password
         await signInWithEmailAndPassword(auth, email, password);
@@ -130,6 +134,10 @@ const AuthPage: React.FC = () => {
     setLoading(true);
     
     try {
+      if (!auth || !googleProvider) {
+        throw new Error('Firebase authentication is not configured');
+      }
+      
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       

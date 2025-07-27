@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ConnectionStatus, TransactionStatus, EssentialService, MockUser } from '@shared/types';
 import { Transaction, Merchant, User } from '@shared/schema';
