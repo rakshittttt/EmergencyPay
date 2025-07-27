@@ -36,6 +36,7 @@ export interface IStorage {
   
   // Merchant operations
   getMerchant(id: number): Promise<Merchant | undefined>;
+  getMerchantByUserId(userId: number): Promise<Merchant | undefined>;
   getMerchants(): Promise<Merchant[]>;
   getEssentialMerchants(): Promise<Merchant[]>;
   createMerchant(merchant: InsertMerchant): Promise<Merchant>;
@@ -195,6 +196,16 @@ export class DatabaseStorage implements IStorage {
       return merchant;
     } catch (error) {
       console.error('Error getting merchant:', error);
+      return undefined;
+    }
+  }
+
+  async getMerchantByUserId(userId: number): Promise<Merchant | undefined> {
+    try {
+      const [merchant] = await db.select().from(merchants).where(eq(merchants.user_id, userId));
+      return merchant;
+    } catch (error) {
+      console.error('Error getting merchant by user ID:', error);
       return undefined;
     }
   }
@@ -477,7 +488,8 @@ export class MemStorage implements IStorage {
       sender_id: insertTransaction.sender_id || 0,
       receiver_id: insertTransaction.receiver_id || 0,
       signature: insertTransaction.signature || null,
-      is_offline: insertTransaction.is_offline || false
+      is_offline: insertTransaction.is_offline || false,
+      method: insertTransaction.method || "UPI"
     };
     this.transactions.set(id, transaction);
     return transaction;
@@ -495,6 +507,12 @@ export class MemStorage implements IStorage {
   // Merchant operations
   async getMerchant(id: number): Promise<Merchant | undefined> {
     return this.merchants.get(id);
+  }
+  
+  async getMerchantByUserId(userId: number): Promise<Merchant | undefined> {
+    return Array.from(this.merchants.values()).find(
+      (merchant) => merchant.user_id === userId
+    );
   }
 
   async getMerchants(): Promise<Merchant[]> {
@@ -639,7 +657,8 @@ export class MemStorage implements IStorage {
         signature: crypto.randomBytes(64).toString('hex'),
         status: i === 2 ? "pending" : "completed", // Make one transaction pending
         is_offline: i === 2, // Make one transaction offline
-        transaction_code: `EMG${Math.floor(1000000 + Math.random() * 9000000)}`
+        transaction_code: `EMG${Math.floor(1000000 + Math.random() * 9000000)}`,
+        method: i === 2 ? "BLUETOOTH" : "UPI" // Use Bluetooth method for offline transaction
       };
       this.transactions.set(transaction.id, transaction);
       

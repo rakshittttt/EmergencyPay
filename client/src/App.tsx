@@ -1,58 +1,73 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Route, Switch } from 'wouter';
-import { AppProvider } from './context/AppContext';
-import Home from './pages/Home';
-import AuthPage from './pages/AuthPage';
-import DirectTransfer from './pages/DirectTransfer';
-import PaymentAmount from './pages/PaymentAmount';
-import PaymentSuccess from './pages/PaymentSuccess';
-import TransactionHistory from './pages/TransactionHistory';
-import Profile from './pages/Profile';
-import QRScan from './pages/QRScan';
-import BluetoothPayment from './pages/BluetoothPayment';
-import NearbyUsers from './pages/NearbyUsers';
-import Merchants from './pages/Merchants';
-import Insights from './pages/Insights';
-import NotFound from './pages/not-found';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-function Router() {
-  return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/auth" component={AuthPage} />
-      <Route path="/transfer" component={DirectTransfer} />
-      <Route path="/amount" component={PaymentAmount} />
-      <Route path="/success" component={PaymentSuccess} />
-      <Route path="/history" component={TransactionHistory} />
-      <Route path="/profile" component={Profile} />
-      <Route path="/qr-scan" component={QRScan} />
-      <Route path="/bluetooth" component={BluetoothPayment} />
-      <Route path="/nearby" component={NearbyUsers} />
-      <Route path="/merchants" component={Merchants} />
-      <Route path="/insights" component={Insights} />
-      <Route component={NotFound} />
-    </Switch>
-  );
-}
+import { Switch, Route, useLocation } from "wouter";
+import { AnimatePresence } from "framer-motion";
+import Home from "@/pages/Home";
+import QRScan from "@/pages/QRScan";
+import BluetoothPayment from "@/pages/BluetoothPayment";
+import PaymentAmount from "@/pages/PaymentAmount";
+import PaymentSuccess from "@/pages/PaymentSuccess";
+import TransactionHistory from "@/pages/TransactionHistory";
+import Merchants from "@/pages/Merchants";
+import Profile from "@/pages/Profile";
+import DirectTransfer from "@/pages/DirectTransfer";
+import Insights from "@/pages/Insights";
+import AuthPage from "@/pages/AuthPage";
+import NotFound from "@/pages/not-found";
+import BottomNavigation from "@/components/BottomNavigation";
+import { useEffect, useState } from "react";
+import { AppProvider } from "@/context/AppContext";
+import { initializeSocket } from "@/lib/socket";
+import { Toaster } from "@/components/ui/toaster";
 
 function App() {
+  const [location] = useLocation();
+  const [currentRoute, setCurrentRoute] = useState('/');
+  
+  useEffect(() => {
+    setCurrentRoute(location);
+  }, [location]);
+  
+  // Initialize real-time updates with Socket.IO
+  useEffect(() => {
+    initializeSocket();
+  }, []);
+  
+  // Check if we're in a payment flow to determine whether to show bottom nav
+  const isPaymentFlow = 
+    location.includes("/qr-scan") || 
+    location.includes("/bluetooth-payment") || 
+    location.includes("/bluetooth") || 
+    location.includes("/payment-amount") || 
+    location.includes("/payment-success") ||
+    location.includes("/direct-transfer");
+  
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppProvider>
-        <div className="min-h-screen bg-background">
-          <Router />
+    <AppProvider>
+      <div className="relative max-w-md mx-auto min-h-screen flex flex-col bg-gray-50">
+        <div className="flex-1 flex flex-col overflow-auto">
+          <AnimatePresence mode="wait">
+            <Switch>
+              <Route path="/" component={Home} />
+              <Route path="/auth" component={AuthPage} />
+              <Route path="/qr-scan" component={QRScan} />
+              <Route path="/bluetooth-payment" component={BluetoothPayment} />
+              <Route path="/bluetooth" component={BluetoothPayment} />
+              <Route path="/payment-amount/:id" component={PaymentAmount} />
+              <Route path="/payment-success/:id" component={PaymentSuccess} />
+              <Route path="/transactions" component={TransactionHistory} />
+              <Route path="/merchants" component={Merchants} />
+              <Route path="/profile" component={Profile} />
+              <Route path="/insights" component={Insights} />
+              <Route path="/direct-transfer" component={DirectTransfer} />
+              <Route path="/direct-transfer/:phone" component={DirectTransfer} />
+              <Route component={NotFound} />
+            </Switch>
+          </AnimatePresence>
         </div>
-      </AppProvider>
-    </QueryClientProvider>
+        
+        {!isPaymentFlow && <BottomNavigation />}
+        <Toaster />
+      </div>
+    </AppProvider>
   );
 }
 

@@ -1,56 +1,35 @@
-export interface ConnectionStatus {
-  isOnline: boolean;
-  isEmergencyMode: boolean;
-  networkType: 'wifi' | 'cellular' | 'offline';
-  lastSync: Date | null;
+// Transaction status types
+export type TransactionStatus = 'pending' | 'completed' | 'failed';
+
+// Merchant categories
+export type MerchantCategory = 'medical' | 'food' | 'fuel' | 'transport' | 'groceries' | 'other';
+
+// App connection status
+export type ConnectionStatus = 'online' | 'offline' | 'emergency';
+
+// Essential service flags
+export interface EssentialService {
+  id: string;
+  name: string;
+  icon: string;
+  category: MerchantCategory;
+  colorClass: string;
 }
 
+// Mock user data interface
+export interface MockUser {
+  id: number;
+  name: string;
+  phone: string;
+  balance: number;
+  emergencyBalance: number;
+}
+
+// Bluetooth device interface
 export interface BluetoothDevice {
   id: string;
   name: string;
-  type: 'merchant' | 'user';
+  category: MerchantCategory;
   distance: number;
-  isEssential?: boolean;
-  publicKey?: string;
-}
-
-export interface PaymentRequest {
-  amount: number;
-  recipientId: number;
-  recipientName: string;
-  description?: string;
-  type: 'UPI' | 'BLUETOOTH' | 'BANK_TRANSFER';
-}
-
-export interface OfflineTransaction {
-  id: string;
-  senderId: number;
-  receiverId: number;
-  amount: number;
-  timestamp: Date;
-  signature: string;
-  type: 'BLUETOOTH';
-  status: 'pending';
-}
-
-export interface EmergencyModeConfig {
-  enabled: boolean;
-  essentialServicesOnly: boolean;
-  maxTransactionAmount: number;
-  allowedCategories: string[];
-}
-
-export interface InsightData {
-  totalSpending: number;
-  emergencySpending: number;
-  transactionCount: number;
-  mostUsedCategory: string;
-  emergencyReadinessScore: number;
-  monthlyTrend: number;
-}
-
-export interface NetworkToggleStatus {
-  status: 'online' | 'offline';
-  timestamp: Date;
-  reason?: 'manual' | 'network_failure' | 'system';
+  isInRange: boolean;
 }

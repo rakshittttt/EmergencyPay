@@ -1,207 +1,224 @@
-import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Link } from 'wouter';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Wallet, 
-  Send, 
-  History, 
-  QrCode, 
-  Bluetooth, 
-  Users, 
-  Store,
-  TrendingUp,
-  Wifi,
-  WifiOff
-} from 'lucide-react';
-import { useApp } from '@/context/AppContext';
-import { User, Transaction } from '@shared/schema';
+import StatusBar from '@/components/StatusBar';
+import BalanceCard from '@/components/BalanceCard';
+import QuickActionButton from '@/components/QuickActionButton';
+import EssentialServiceCard from '@/components/EssentialServiceCard';
+import TransactionItem from '@/components/TransactionItem';
+import { useAppContext } from '@/context/AppContext';
 
-export default function Home() {
-  const { user, setUser, connectionStatus, isEmergencyMode } = useApp();
-  
-  const { data: userData } = useQuery<User>({
-    queryKey: ['/api/user'],
-    enabled: !user,
-  });
-
-  const { data: transactions = [] } = useQuery<Transaction[]>({
-    queryKey: ['/api/transactions', userData?.id],
-    enabled: !!userData?.id,
-  });
+const Home: React.FC = () => {
+  const { 
+    currentUser, 
+    transactions,
+    essentialServices,
+    refreshTransactions,
+    connectionStatus,
+    isEmergencyMode
+  } = useAppContext();
 
   useEffect(() => {
-    if (userData && !user) {
-      setUser(userData);
-    }
-  }, [userData, user, setUser]);
+    // Refresh transactions when the component mounts
+    refreshTransactions();
+  }, [refreshTransactions]);
 
-  const recentTransactions = transactions.slice(0, 3);
-  const currentBalance = user?.balance ? parseFloat(user.balance) : 0;
-  const emergencyBalance = user?.emergencyBalance ? parseFloat(user.emergencyBalance) : 0;
+  // Debug log to check connection status
+  useEffect(() => {
+    console.log('Current connection status:', connectionStatus);
+  }, [connectionStatus]);
+
+  // Limit transactions to 4 most recent ones
+  const recentTransactions = transactions
+    .sort((a, b) => {
+      // Handle null timestamps safely
+      const dateA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+      const dateB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+      return dateB - dateA;
+    })
+    .slice(0, 4);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4">
-      <div className="max-w-md mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center py-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">EmergencyPay</h1>
-          <div className="flex items-center justify-center gap-2">
-            {connectionStatus.isOnline ? (
-              <Badge variant="default" className="bg-green-500">
-                <Wifi className="w-3 h-3 mr-1" />
-                Online
-              </Badge>
-            ) : (
-              <Badge variant="destructive">
-                <WifiOff className="w-3 h-3 mr-1" />
-                Offline
-              </Badge>
-            )}
-            {isEmergencyMode && (
-              <Badge variant="destructive" className="emergency-pulse">
-                Emergency Mode
-              </Badge>
-            )}
-          </div>
+    <motion.div 
+      className="flex-1 flex flex-col"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <StatusBar />
+      
+      <div className="flex-1 overflow-auto scrollbar-hide pb-20">
+        {/* Welcome Header */}
+        <motion.div 
+          className="px-4 py-6"
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <h1 className="text-2xl font-semibold">Hi, {currentUser?.name?.split(' ')[0] || 'User'}</h1>
+          <p className="text-gray-600 mt-1">Welcome to EmergencyPay</p>
+        </motion.div>
+        
+        {/* Balance Card */}
+        <div className="mx-4 mb-6">
+          <BalanceCard />
         </div>
-
-        {/* Balance Cards */}
-        <div className="grid grid-cols-2 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-gray-600">Main Balance</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Wallet className="w-5 h-5 text-green-600" />
-                <span className="text-2xl font-bold">₹{currentBalance.toFixed(2)}</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-gray-600">Emergency Fund</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Wallet className="w-5 h-5 text-red-600" />
-                <span className="text-2xl font-bold">₹{emergencyBalance.toFixed(2)}</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
+        
         {/* Quick Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 gap-4">
-              <Link href="/transfer">
-                <Button variant="outline" className="w-full h-20 flex-col gap-2">
-                  <Send className="w-6 h-6" />
-                  <span>Send Money</span>
-                </Button>
-              </Link>
-
-              <Link href="/qr-scan">
-                <Button variant="outline" className="w-full h-20 flex-col gap-2">
-                  <QrCode className="w-6 h-6" />
-                  <span>QR Pay</span>
-                </Button>
-              </Link>
-
-              <Link href="/bluetooth">
-                <Button variant="outline" className="w-full h-20 flex-col gap-2">
-                  <Bluetooth className="w-6 h-6" />
-                  <span>Bluetooth Pay</span>
-                </Button>
-              </Link>
-
-              <Link href="/merchants">
-                <Button variant="outline" className="w-full h-20 flex-col gap-2">
-                  <Store className="w-6 h-6" />
-                  <span>Merchants</span>
-                </Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent Transactions */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Recent Transactions</CardTitle>
-            <Link href="/history">
-              <Button variant="ghost" size="sm">View All</Button>
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {recentTransactions.length > 0 ? (
-              <div className="space-y-3">
-                {recentTransactions.map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-3 border rounded-lg">
-                    <div>
-                      <p className="font-medium">{transaction.description || 'Payment'}</p>
-                      <p className="text-sm text-gray-600">{transaction.type}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold">₹{parseFloat(transaction.amount).toFixed(2)}</p>
-                      <Badge 
-                        variant={transaction.status === 'completed' ? 'default' : 
-                                transaction.status === 'pending' ? 'secondary' : 'destructive'}
-                        className="text-xs"
-                      >
-                        {transaction.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-gray-500 py-4">No recent transactions</p>
+        <div className="px-4 mb-8">
+          <h3 className="text-lg font-medium mb-4">
+            {connectionStatus === 'emergency' ? 'Emergency Actions' : 'Quick Actions'}
+            {connectionStatus === 'emergency' && (
+              <span className="ml-2 text-xs font-normal text-emergency-600 bg-emergency-50 px-2 py-1 rounded-full">
+                Emergency Mode Active
+              </span>
             )}
-          </CardContent>
-        </Card>
-
-        {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
-          <div className="max-w-md mx-auto flex justify-around">
-            <Link href="/">
-              <Button variant="ghost" size="sm" className="flex-col gap-1">
-                <Wallet className="w-4 h-4" />
-                <span className="text-xs">Home</span>
-              </Button>
-            </Link>
-            
-            <Link href="/history">
-              <Button variant="ghost" size="sm" className="flex-col gap-1">
-                <History className="w-4 h-4" />
-                <span className="text-xs">History</span>
-              </Button>
-            </Link>
-            
-            <Link href="/nearby">
-              <Button variant="ghost" size="sm" className="flex-col gap-1">
-                <Users className="w-4 h-4" />
-                <span className="text-xs">Nearby</span>
-              </Button>
-            </Link>
-            
-            <Link href="/insights">
-              <Button variant="ghost" size="sm" className="flex-col gap-1">
-                <TrendingUp className="w-4 h-4" />
-                <span className="text-xs">Insights</span>
-              </Button>
+          </h3>
+          
+          {connectionStatus === 'emergency' ? (
+            /* Emergency Mode Actions */
+            <div>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <QuickActionButton 
+                  icon="ri-qr-scan-line" 
+                  label="Scan QR" 
+                  path="/qr-scan"
+                  delay={0}
+                />
+                <QuickActionButton 
+                  icon="ri-bluetooth-line" 
+                  label="Pay via BT" 
+                  path="/bluetooth-payment"
+                  delay={1}
+                />
+                <QuickActionButton 
+                  icon="ri-store-2-line" 
+                  label="Merchants" 
+                  path="/merchants"
+                  delay={2}
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <QuickActionButton 
+                  icon="ri-history-line" 
+                  label="History" 
+                  path="/transactions"
+                  delay={3}
+                />
+                <QuickActionButton 
+                  icon="ri-user-line" 
+                  label="Profile" 
+                  path="/profile"
+                  delay={4}
+                />
+                <div className="opacity-0"></div>
+              </div>
+              <div className="mt-4 p-3 bg-emergency-50 rounded-lg border border-emergency-100">
+                <p className="text-sm text-emergency-800">
+                  <i className="ri-information-line mr-1"></i>
+                  Some features are disabled in Emergency Mode. Only offline payment methods are available.
+                </p>
+              </div>
+            </div>
+          ) : (
+            /* Normal Mode Actions */
+            <div>
+              <div className="grid grid-cols-3 gap-4 mb-4">
+                <QuickActionButton 
+                  icon="ri-qr-scan-line" 
+                  label="Scan QR" 
+                  path="/qr-scan"
+                  delay={0}
+                />
+                <QuickActionButton 
+                  icon="ri-smartphone-line" 
+                  label="Pay via BT" 
+                  path="/bluetooth-payment"
+                  delay={1}
+                />
+                <QuickActionButton 
+                  icon="ri-store-2-line" 
+                  label="Merchants" 
+                  path="/merchants"
+                  delay={2}
+                />
+              </div>
+              <div className="grid grid-cols-4 gap-4">
+                <QuickActionButton 
+                  icon="ri-user-received-line" 
+                  label="Send Money" 
+                  path="/direct-transfer"
+                  delay={3}
+                />
+                <QuickActionButton 
+                  icon="ri-history-line" 
+                  label="History" 
+                  path="/transactions"
+                  delay={4}
+                />
+                <QuickActionButton 
+                  icon="ri-pie-chart-line" 
+                  label="Insights" 
+                  path="/insights"
+                  delay={5}
+                />
+                <QuickActionButton 
+                  icon="ri-user-line" 
+                  label="Profile" 
+                  path="/profile"
+                  delay={6}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Essential Services */}
+        <div className="px-4 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">Essential Services</h3>
+            <Link href="/merchants" className="text-primary text-sm">View All</Link>
+          </div>
+          <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-hide">
+            {essentialServices.map((service, index) => (
+              <EssentialServiceCard 
+                key={service.id} 
+                service={service} 
+                index={index}
+              />
+            ))}
+          </div>
+        </div>
+        
+        {/* Recent Transactions */}
+        <div className="px-4 pb-24">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium">Recent Transactions</h3>
+            <Link 
+              href="/transactions"
+              className="text-primary text-sm"
+            >
+              See All
             </Link>
           </div>
-        </nav>
+          
+          {recentTransactions.length > 0 ? (
+            recentTransactions.map((transaction, index) => (
+              <TransactionItem 
+                key={transaction.id} 
+                transaction={transaction}
+                index={index}
+              />
+            ))
+          ) : (
+            <div className="text-center p-6 bg-gray-50 rounded-lg">
+              <p className="text-gray-500">No transactions yet</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
-}
+};
+
+export default Home;
