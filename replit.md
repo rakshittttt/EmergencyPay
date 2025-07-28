@@ -6,6 +6,17 @@ EmergencyPay is a React-based web application simulating an offline payment syst
 
 **IMPORTANT: Backend has been converted to Flask (Python) instead of Express.js (Node.js). The application now uses a Flask server with SQLite database.**
 
+## Recent Changes
+
+**July 28, 2025**: Fixed application startup issues
+✓ Created server/index.ts wrapper to handle Flask startup through Node.js workflow
+✓ Modified Flask app to use PORT environment variable (defaults to 3000)
+✓ Fixed package.json workflow compatibility by maintaining Node.js entry point that launches Flask
+✓ Application now starts successfully and serves on port 3000
+✓ All API endpoints working correctly (/api/user, /api/merchants, /api/transactions, /api/system/network-status)
+✓ Socket.IO real-time communication established
+✓ Frontend builds and serves correctly
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
