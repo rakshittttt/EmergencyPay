@@ -8,14 +8,17 @@ EmergencyPay is a React-based web application simulating an offline payment syst
 
 ## Recent Changes
 
-**July 28, 2025**: Fixed application startup issues
-✓ Created server/index.ts wrapper to handle Flask startup through Node.js workflow
-✓ Modified Flask app to use PORT environment variable (defaults to 3000)
-✓ Fixed package.json workflow compatibility by maintaining Node.js entry point that launches Flask
-✓ Application now starts successfully and serves on port 3000
-✓ All API endpoints working correctly (/api/user, /api/merchants, /api/transactions, /api/system/network-status)
-✓ Socket.IO real-time communication established
-✓ Frontend builds and serves correctly
+**July 28, 2025**: Express Dependencies Cleanup Completed
+✓ Removed all Express.js related packages (express, express-session, passport, connect-pg-simple)
+✓ Removed Drizzle ORM dependencies (@neondatabase/serverless, drizzle-orm, drizzle-zod, drizzle-kit)
+✓ Cleaned up shared/ directory and schema files (no longer needed with Flask + SQLite)
+✓ Removed drizzle.config.ts configuration file
+✓ Cleaned up Node.js backend-specific packages (@types/node, @types/ws, ws, esbuild)
+✓ Maintained server/index.ts as Node.js wrapper for Flask startup (workflow compatibility)
+✓ Application successfully runs with Flask backend and React frontend
+✓ All API endpoints functioning correctly (/api/user, /api/merchants, /api/transactions, /api/system/network-status)
+✓ Socket.IO real-time communication working properly
+✓ Frontend builds and serves without issues
 
 ## User Preferences
 
@@ -89,18 +92,18 @@ The application follows a full-stack architecture with clear separation between 
 ## External Dependencies
 
 ### Core Libraries
-- **@neondatabase/serverless**: PostgreSQL serverless connection
-- **drizzle-orm**: Type-safe SQL query builder
-- **socket.io**: Real-time bidirectional communication
-- **@radix-ui/***: Accessible UI primitives
-- **framer-motion**: Animation library
-- **react-hook-form**: Form state management
+- **socket.io & socket.io-client**: Real-time bidirectional communication
+- **@radix-ui/***: Accessible UI primitives for React components
+- **framer-motion**: Animation library for smooth transitions
+- **react-hook-form**: Form state management and validation
+- **@tanstack/react-query**: Server state management and caching
+- **wouter**: Lightweight React routing
 
 ### Development Tools
-- **Vite**: Build tool and dev server
-- **TypeScript**: Static type checking
+- **Vite**: Build tool and dev server for frontend
+- **TypeScript**: Static type checking for both frontend and Node.js wrapper
 - **Tailwind CSS**: Utility-first CSS framework
-- **ESBuild**: Fast JavaScript bundler for production
+- **tsx**: TypeScript execution for server/index.ts wrapper
 
 ### Optional Integrations
 - **Firebase Auth**: User authentication (configurable)
@@ -110,26 +113,28 @@ The application follows a full-stack architecture with clear separation between 
 ## Deployment Strategy
 
 ### Development Environment
-- **Dev Server**: Vite development server with HMR
-- **Database**: Neon PostgreSQL serverless instance
-- **Hot Reload**: Full-stack TypeScript compilation with live updates
+- **Dev Server**: Vite development server with HMR for frontend
+- **Database**: SQLite with direct SQL operations (database.db file)
+- **Hot Reload**: Frontend TypeScript compilation with live updates
+- **Backend**: Flask development server with debug mode
 
 ### Production Build
-- **Frontend**: Static assets built with Vite and served by Express
-- **Backend**: ESBuild bundled Node.js application
-- **Database**: PostgreSQL with connection pooling
-- **Session Store**: PostgreSQL-backed session storage
+- **Frontend**: Static assets built with Vite and served by Flask
+- **Backend**: Flask application with SQLite database
+- **Database**: File-based SQLite (database.db)
+- **Session Store**: Flask session management
 
 ### Environment Configuration
 The application requires the following environment variables:
-- `DATABASE_URL`: PostgreSQL connection string
-- `SESSION_SECRET`: Express session encryption key
-- Optional Firebase and Supabase credentials for extended functionality
+- `PORT`: Server port (defaults to 3000)
+- Optional Firebase credentials for authentication features
+- Optional external service API keys as needed
 
 ### Deployment Considerations
 - The application is designed for Replit deployment with automatic environment setup
-- Database migrations are handled through Drizzle Kit
-- Static assets are served from the Express server in production
-- WebSocket support required for real-time features
+- SQLite database is file-based (database.db) - no migration tools needed
+- Static assets are served from Flask in production
+- WebSocket support provided by Flask-SocketIO
+- Node.js wrapper (server/index.ts) maintains workflow compatibility
 
 The architecture emphasizes offline-first capabilities while maintaining compatibility with traditional online payment flows, making it suitable for emergency scenarios where network connectivity is unreliable.
