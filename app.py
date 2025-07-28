@@ -11,8 +11,8 @@ import threading
 import time
 
 app = Flask(__name__, 
-           static_folder='client/dist',
-           template_folder='client/dist')
+           static_folder='dist/public',
+           template_folder='dist/public')
 app.config['SECRET_KEY'] = os.environ.get('SESSION_SECRET', 'dev-secret-key')
 socketio = SocketIO(app, cors_allowed_origins="*")
 
@@ -288,4 +288,4 @@ def serve_static(filename):
     return send_from_directory(app.static_folder, filename)
 
 if __name__ == '__main__':
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True, allow_unsafe_werkzeug=True)

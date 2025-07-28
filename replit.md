@@ -4,6 +4,8 @@
 
 EmergencyPay is a React-based web application simulating an offline payment system that works during UPI outages in India. The system provides both merchant and customer interfaces with offline transaction capabilities using simulated Bluetooth Low Energy for device-to-device payments.
 
+**IMPORTANT: Backend has been converted to Flask (Python) instead of Express.js (Node.js). The application now uses a Flask server with SQLite database.**
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -22,11 +24,11 @@ The application follows a full-stack architecture with clear separation between 
 - **Animations**: Framer Motion for smooth transitions and micro-interactions
 
 ### Backend Architecture
-- **Runtime**: Node.js with Express.js framework
-- **Language**: TypeScript with ES modules
-- **Database**: PostgreSQL with Drizzle ORM
-- **Session Management**: Express sessions with PostgreSQL store
-- **Real-time Communication**: Socket.IO for live updates
+- **Runtime**: Python with Flask framework
+- **Language**: Python 3.11
+- **Database**: SQLite with direct SQL operations
+- **Session Management**: Flask sessions
+- **Real-time Communication**: Flask-SocketIO for live updates
 - **Authentication**: Firebase Auth integration (optional)
 
 ## Key Components
