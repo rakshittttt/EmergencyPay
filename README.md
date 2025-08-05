@@ -17,84 +17,52 @@ Routing: Wouter for lightweight client-side routing
 Data Fetching: TanStack Query for server state management
 Animations: Framer Motion for smooth transitions
 🚀 Quick Start
-Clone the Repository
+🧱 Step 1:Clone the Repository:
 
 git clone https://github.com/rabel798/EmergencyPay
 cd emergencypay
-Install Dependencies
 
+🐍 Step 2: Set Up Python Environment:
+python -m venv myenv
+myenv\Scripts\activate         # For Windows
+# OR
+source myenv/bin/activate      # For macOS/Linux
+
+📦Step 3: Install Dependencies:
+(a)🟢 Install Node (Frontend) dependencies by running:
 npm install
+(b)🐍 Install Python (Backend) dependencies by running:
 pip install -r requirements.txt
-Set Up Environment Variables Create a .env file in the root directory and add the environment variables (see Environment Variables section below).
 
-Run the Application
-
-# Build frontend and start Flask server
-npm start
-# OR run Flask directly
-python app.py
-Access the Application
-
-Development: http://localhost:3000
-The app will build the frontend and start the Flask server
-🔧 Environment Variables
-Required Environment Variables
-Create a .env file in your project root with the following variables:
-
-# Flask Session Security
+⚙ Step 4: Create .env File:
+In the left top corner, under the "Explorer" dropdown, you would see "EMERGENCYPAY" , hover there and then add a new file.
+name it ".env" and paste the follwoing: 
+# Flask session secret
 SESSION_SECRET=3cWsjk7sOu8FH4zkLvn8j5OltsezQVOBfRSPFEr5RKPR+U0gzpWE+ggLorxFejynvkSvj2tBJ8UsIqtZqng2xg==
-# Server Configuration
+
+# Server config
 PORT=3000
 FLASK_ENV=development
 FLASK_DEBUG=true
-# PostgreSQL Database Configuration
+
+# PostgreSQL database config
 DATABASE_URL=postgresql://neondb_owner:npg_m0JGs4tCgoTe@ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech/neondb?sslmode=require
 PGDATABASE=neondb
 PGHOST=ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech
 PGPORT=5432
 PGUSER=neondb_owner
 PGPASSWORD=npg_m0JGs4tCgoTe
-# Firebase Configuration (Optional - for authentication)
+
+# (Optional) Firebase config — only if using Firebase
 VITE_FIREBASE_API_KEY=your_firebase_api_key
 VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
 VITE_FIREBASE_APP_ID=your_firebase_app_id
-Environment Variable Details
-Core Application Variables
-SESSION_SECRET: Flask session encryption key (pre-configured for security)
-PORT: Server port (defaults to 3000)
-FLASK_ENV: Flask environment mode (development/production)
-FLASK_DEBUG: Enable Flask debug mode (true/false)
-Database Configuration
-The application is pre-configured with PostgreSQL database credentials:
 
-DATABASE_URL: Complete PostgreSQL connection string (Neon database)
-PGDATABASE: Database name (neondb)
-PGHOST: Database host (ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech)
-PGPORT: Database port (5432)
-PGUSER: Database username (neondb_owner)
-PGPASSWORD: Database password (configured)
-Firebase Variables (Optional)
-For authentication features (app works without these):
+🏃‍♂ Step 5: Run the App:
+✅Build frontend and run everything (Production mode):
+npm run build      # Builds the frontend
+python app.py      # Starts the Flask backend
 
-VITE_FIREBASE_API_KEY: Firebase API key
-VITE_FIREBASE_PROJECT_ID: Firebase project ID
-VITE_FIREBASE_APP_ID: Firebase application ID
-Quick Setup Commands
-Copy environment variables:
-
-cat > .env << 'EOF'
-SESSION_SECRET=3cWsjk7sOu8FH4zkLvn8j5OltsezQVOBfRSPFEr5RKPR+U0gzpWE+ggLorxFejynvkSvj2tBJ8UsIqtZqng2xg==
-PORT=3000
-DATABASE_URL=postgresql://neondb_owner:npg_m0JGs4tCgoTe@ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech/neondb?sslmode=require
-PGDATABASE=neondb
-PGHOST=ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech
-PGPORT=5432
-PGUSER=neondb_owner
-PGPASSWORD=npg_m0JGs4tCgoTe
-EOF
-Start the application:
-
-npm start
 📱 Key Features
 🌐 Connection Management
 Online Mode: Real-time UPI-like transactions
