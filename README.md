@@ -26,45 +26,45 @@ git clone https://github.com/rabel798/EmergencyPay
 cd emergencypay
 
 🐍 Step 2: Set Up Python Environment:<br>
-python -m venv myenv
-myenv\Scripts\activate         # For Windows
-#OR
+python -m venv myenv<br>
+myenv\Scripts\activate         # For Windows<br>
+#OR<br>
 source myenv/bin/activate      # For macOS/Linux
 
-📦Step 3: Install Dependencies:
-(a)🟢 Install Node (Frontend) dependencies by running:
-npm install
-(b)🐍 Install Python (Backend) dependencies by running:
-pip install -r requirements.txt
+📦Step 3: Install Dependencies:<br>
+(a)🟢 Install Node (Frontend) dependencies by running:<br>
+npm install<br>
+(b)🐍 Install Python (Backend) dependencies by running:<br>
+pip install -r requirements.txt<br>
 
-⚙ Step 4: Create .env File:
+⚙ Step 4: Create .env File:<br>
 In the left top corner, under the "Explorer" dropdown, you would see "EMERGENCYPAY" , hover there and then add a new file.
-name it ".env" and paste the follwoing: 
-# Flask session secret
-SESSION_SECRET=3cWsjk7sOu8FH4zkLvn8j5OltsezQVOBfRSPFEr5RKPR+U0gzpWE+ggLorxFejynvkSvj2tBJ8UsIqtZqng2xg==
+name it ".env" and paste the follwoing: <br>
+#Flask session secret<br>
+SESSION_SECRET=3cWsjk7sOu8FH4zkLvn8j5OltsezQVOBfRSPFEr5RKPR+U0gzpWE+ggLorxFejynvkSvj2tBJ8UsIqtZqng2xg==<br>
 
-# Server config
-PORT=3000
-FLASK_ENV=development
-FLASK_DEBUG=true
+#Server config<br>
+PORT=3000<br>
+FLASK_ENV=development<br>
+FLASK_DEBUG=true<br>
 
-# PostgreSQL database config
-DATABASE_URL=postgresql://neondb_owner:npg_m0JGs4tCgoTe@ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech/neondb?sslmode=require
-PGDATABASE=neondb
-PGHOST=ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech
-PGPORT=5432
-PGUSER=neondb_owner
-PGPASSWORD=npg_m0JGs4tCgoTe
+#PostgreSQL database config<br>
+DATABASE_URL=postgresql://neondb_owner:npg_m0JGs4tCgoTe@ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech/neondb?sslmode=require<br>
+PGDATABASE=neondb<br>
+PGHOST=ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech<br>
+PGPORT=5432<br>
+PGUSER=neondb_owner<br>
+PGPASSWORD=npg_m0JGs4tCgoTe<br>
 
-# (Optional) Firebase config — only if using Firebase
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
-VITE_FIREBASE_APP_ID=your_firebase_app_id
+#(Optional) Firebase config — only if using Firebase<br>
+VITE_FIREBASE_API_KEY=your_firebase_api_key<br>
+VITE_FIREBASE_PROJECT_ID=your_firebase_project_id<br>
+VITE_FIREBASE_APP_ID=your_firebase_app_id<br>
 
-🏃‍♂ Step 5: Run the App:
-✅Build frontend and run everything (Production mode):
-npm run build      # Builds the frontend
-python app.py      # Starts the Flask backend
+🏃‍♂ Step 5: Run the App:<br>
+✅Build frontend and run everything (Production mode):<br>
+npm run build      # Builds the frontend<br>
+python app.py      # Starts the Flask backend<br>
 
 📱 Key Features
 🌐 Connection Management
