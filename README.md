@@ -19,6 +19,7 @@ Animations: Framer Motion for smooth transitions
 <br>
 🚀 Quick Start
 <br>
+<br>
 🧱 Step 1:Clone the Repository:
 
 git clone https://github.com/rabel798/EmergencyPay
