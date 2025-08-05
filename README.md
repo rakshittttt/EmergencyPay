@@ -18,6 +18,7 @@ Data Fetching: TanStack Query for server state management
 Animations: Framer Motion for smooth transitions
 <br>
 🚀 Quick Start
+<br>
 🧱 Step 1:Clone the Repository:
 
 git clone https://github.com/rabel798/EmergencyPay
