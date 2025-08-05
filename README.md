@@ -15,7 +15,7 @@ UI Framework: Tailwind CSS with shadcn/ui components
 State Management: React Context API with custom AppContext
 Routing: Wouter for lightweight client-side routing
 Data Fetching: TanStack Query for server state management
-Animations: Framer Motion for smooth transitions
+Animations: Framer Motion for smooth transitions<br>
 <br>
 🚀 Quick Start
 <br>
