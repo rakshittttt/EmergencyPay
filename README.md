@@ -22,12 +22,13 @@ Animations: Framer Motion for smooth transitions
 🧱 Step 1:Clone the Repository:
 
 git clone https://github.com/rabel798/EmergencyPay
+<br>
 cd emergencypay
 
-🐍 Step 2: Set Up Python Environment:
+🐍 Step 2: Set Up Python Environment:<br>
 python -m venv myenv
 myenv\Scripts\activate         # For Windows
-# OR
+#OR
 source myenv/bin/activate      # For macOS/Linux
 
 📦Step 3: Install Dependencies:
