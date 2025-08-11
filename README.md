@@ -77,26 +77,36 @@ env
  
 # **📱 Key Features:**
 
-# 🌐 Connection Management
+## 🌐 Connection Management
   **Online Mode**: Real-time UPI-like transactions
+  
   **Offline Mode**: Bluetooth-simulated peer-to-peer payments
+  
   **Emergency Mode**: Special offline capabilities for essential services
+  
   **Auto-detection**: Automatic switching based on network status
 
-# 💳 Payment Processing
+## 💳 Payment Processing
   **Digital Wallet**: Regular and emergency balance management
+ 
   **QR Code Scanning**: Simulated merchant payment flows
+  
   **Bluetooth Payments**: Device-to-device offline transactions
+  
   **Transaction History**: Comprehensive payment tracking
+  
   **Offline Sync**: Reconciliation when connectivity restored
 
-# 🏥 Emergency Services
+## 🏥 Emergency Services
   **Essential Merchants**: Priority access to healthcare, groceries, transport
+  
   **Emergency Balance**: Reserved funds for critical situations
+  
   **Offline Capabilities**: Payments without internet connectivity
+  
   **Digital Signatures**: Cryptographic transaction security
 
-**🗂️ Project Structure**
+# **🗂️ Project Structure**
 
 EmergencyPay/
 ├── client/                    # React frontend
