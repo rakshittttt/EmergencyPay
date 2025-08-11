@@ -65,10 +65,10 @@ env
   - npm run build      # Builds the frontend
   - python app.py      # Starts the Flask backend
 
-### OR run in development mode:**
+### OR run in development mode:
    npm start
 
-### OR run Flask directly:**
+### OR run Flask directly:
    python app.py
 
 # **🌐 Access the Application**
@@ -207,11 +207,11 @@ env
   - import os
   - import psycopg2
   - try:
-  -     conn = psycopg2.connect(os.environ['DATABASE_URL'])
-  -     print('✓ Database connection successful')
-  -     conn.close()
+  -    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+  -    print('✓ Database connection successful')
+  -    conn.close()
   - except Exception as e:
-  -     print(f'✗ Database connection failed: {e}')
+  -    print(f'✗ Database connection failed: {e}')
   - "
 
 # **📄 License**
