@@ -72,142 +72,132 @@ env
    python app.py
 
 # **🌐 Access the Application**
-  Development: http://localhost:3000
-  The app will build the frontend and start the Flask server
+  - Development: http://localhost:3000
+  - The app will build the frontend and start the Flask server
  
 # **📱 Key Features:**
 
 ## 🌐 Connection Management
-  **Online Mode**: Real-time UPI-like transactions
-  
-  **Offline Mode**: Bluetooth-simulated peer-to-peer payments
-  
-  **Emergency Mode**: Special offline capabilities for essential services
-  
-  **Auto-detection**: Automatic switching based on network status
+  - **Online Mode**: Real-time UPI-like transactions
+  - **Offline Mode**: Bluetooth-simulated peer-to-peer payments
+  - **Emergency Mode**: Special offline capabilities for essential services
+  - **Auto-detection**: Automatic switching based on network status
 
 ## 💳 Payment Processing
-  **Digital Wallet**: Regular and emergency balance management
- 
-  **QR Code Scanning**: Simulated merchant payment flows
-  
-  **Bluetooth Payments**: Device-to-device offline transactions
-  
-  **Transaction History**: Comprehensive payment tracking
-  
-  **Offline Sync**: Reconciliation when connectivity restored
+  - **Digital Wallet**: Regular and emergency balance management
+  - **QR Code Scanning**: Simulated merchant payment flows
+  - **Bluetooth Payments**: Device-to-device offline transactions
+  - **Transaction History**: Comprehensive payment tracking
+  - **Offline Sync**: Reconciliation when connectivity restored
 
 ## 🏥 Emergency Services
-  **Essential Merchants**: Priority access to healthcare, groceries, transport
-  
-  **Emergency Balance**: Reserved funds for critical situations
-  
-  **Offline Capabilities**: Payments without internet connectivity
-  
-  **Digital Signatures**: Cryptographic transaction security
+  - **Essential Merchants**: Priority access to healthcare, groceries, transport
+  - **Emergency Balance**: Reserved funds for critical situations
+  - **Offline Capabilities**: Payments without internet connectivity
+  - **Digital Signatures**: Cryptographic transaction security
 
 # **🗂️ Project Structure**
 
-EmergencyPay/
-├── client/                    # React frontend
-│   ├── src/
-│   │   ├── components/        # Reusable UI components
-│   │   ├── pages/            # Application pages
-│   │   ├── context/          # State management
-│   │   └── lib/              # Utilities and services
-├── server/                   # Node.js wrapper for compatibility
-├── app.py                    # Main Flask application
-├── database.db              # SQLite database (auto-created)
-├── requirements.txt          # Python dependencies
-├── package.json             # Node.js dependencies
-└── .env                     # Environment variables (create this)
+- EmergencyPay/
+- ├── client/                    # React frontend
+- │   ├── src/
+- │   │   ├── components/        # Reusable UI components
+- │   │   ├── pages/            # Application pages
+- │   │   ├── context/          # State management
+- │   │   └── lib/              # Utilities and services
+- ├── server/                   # Node.js wrapper for compatibility
+- ├── app.py                    # Main Flask application
+- ├── database.db              # SQLite database (auto-created)
+- ├── requirements.txt          # Python dependencies
+- ├── package.json             # Node.js dependencies
+- └── .env                     # Environment variables (create this)
 
-**🔄 Data Flow**
+# **🔄 Data Flow**
 
-# Online Transaction Flow
- User initiates payment via QR scan or merchant selection
- Frontend validates amount and balance
- Flask backend processes payment through banking simulation
- Real-time updates via Socket.IO
- Transaction recorded in PostgreSQL database 
+## Online Transaction Flow
+ - User initiates payment via QR scan or merchant selection
+ - Frontend validates amount and balance
+ - Flask backend processes payment through banking simulation
+ - Real-time updates via Socket.IO
+ - Transaction recorded in PostgreSQL database 
 
-# Offline Transaction Flow
- Emergency mode activated (manual or automatic)
- Bluetooth device discovery initiated
- Peer-to-peer connection established
- Transaction signed with digital signature
- Local storage with pending sync status
- Reconciliation when connectivity restored
+## Offline Transaction Flow
+ - Emergency mode activated (manual or automatic)
+ - Bluetooth device discovery initiated
+ - Peer-to-peer connection established
+ - Transaction signed with digital signature
+ - Local storage with pending sync status
+ - Reconciliation when connectivity restored
 
-**📊 Database Schema**
-# Users Table
-  User profiles and authentication
-  Digital keypairs for signatures
-  Regular and emergency balances
+# **📊 Database Schema**
+## Users Table
+  - User profiles and authentication
+  - Digital keypairs for signatures
+  - Regular and emergency balances
 
-# Transactions Table
-  Payment records with status tracking
-  Online/offline transaction metadata
-  Digital signatures and verification
+## Transactions Table
+  - Payment records with status tracking
+  - Online/offline transaction metadata
+  - Digital signatures and verification
   
-# Merchants Table
-  Merchant profiles and categories
-  Essential service flags
-  Payment acceptance preferences
+## Merchants Table
+  - Merchant profiles and categories
+  - Essential service flags
+  - Payment acceptance preferences
 
-**🔐 Security Features**
- **Digital Signatures**: Cryptographic transaction signing
- **Session Management**: Secure Flask sessions with pre-configured secrets
- **Input Validation**: Comprehensive data sanitization
- **Offline Security**: Local transaction verification
- **Emergency Protocols**: Secure offline payment processing
- **Database Security**: PostgreSQL with SSL connections
+# **🔐 Security Features**
+ - **Digital Signatures**: Cryptographic transaction signing
+ - **Session Management**: Secure Flask sessions with pre-configured secrets
+ - **Input Validation**: Comprehensive data sanitization
+ - **Offline Security**: Local transaction verification
+ - **Emergency Protocols**: Secure offline payment processing
+ - **Database Security**: PostgreSQL with SSL connections
 
-**🛠️ Development**
-**Local Development**
- # Frontend development with hot reload
+# **🛠️ Development**
+## **Local Development**
+ ### Frontend development with hot reload
  npm run dev
 
- # Backend development
+ ### Backend development
  python app.py
 
-**Production Build**
- # Build frontend
+## **Production Build**
+ ### Build frontend
   npm run build
 
- # Start production server
+ ### Start production server
  npm start
  
-**Testing Database Connection**
+## **Testing Database Connection**
   python -c "import psycopg2; print('Database connection successful!')"
 
-**🚀 Deployment**
-# Ready-to-Deploy Configuration
+# **🚀 Deployment**
+## Ready-to-Deploy Configuration
   The application comes pre-configured with:
   PostgreSQL database credentials (Neon cloud database)
   Session security keys
   Production-ready environment variables
   
-# Deploy Steps
+## Deploy Steps
   Environment variables are already configured
   Build the frontend: npm run build
   Start the Flask server: python app.py
   Application will be accessible on the configured port
   
-# Database Information
+## Database Information
   Provider: Neon (Serverless PostgreSQL)
   Region: US West 2 (AWS)
   SSL: Required and configured
   Connection Pooling: Enabled
 
-**🔍 Troubleshooting**
-# Common Issues
+# **🔍 Troubleshooting**
+## Common Issues
   Database Connection: Pre-configured with Neon PostgreSQL - should work out of the box
   Session Management: SESSION_SECRET is pre-configured
   Port Conflicts: Change PORT environment variable if needed
   SSL Issues: Database uses SSL by default (sslmode=require)
 
-**Verify Setup**
+# **Verify Setup**
 # Check environment variables:
   printenv | grep -E "(SESSION_SECRET|DATABASE_URL|PG)"
 
