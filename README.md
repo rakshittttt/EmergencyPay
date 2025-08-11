@@ -228,7 +228,9 @@ MIT License - see LICENSE file for details
  # For issues and questions:
 
   Create an issue in the GitHub repository
+ 
   Check the troubleshooting section above
+  
   Verify environment variables are correctly set
 
 **Note: This is a simulation system for demonstration purposes. Do not use for actual financial transactions. The database credentials provided are for demonstration and should be rotated for production use.**
