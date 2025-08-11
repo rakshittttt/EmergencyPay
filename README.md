@@ -33,43 +33,43 @@ myenv\Scripts\activate         # For Windows
 # OR
 source myenv/bin/activate      # For macOS/Linux
 
-## **📦 Step 2: Install Dependencies**
+## **📦 Step 3: Install Dependencies**
 # Install Node (Frontend) dependencies:
 npm install
 
 # Install Python (Backend) dependencies:
 pip install -r requirements.txt
 
-**⚙ Step 4: Create .env File**
+## **⚙ Step 4: Create .env File**
 In the project root directory, create a .env file and add the following environment variables:
 
 env
 # Flask session secret
-SESSION_SECRET=3cWsjk7sOu8FH4zkLvn8j5OltsezQVOBfRSPFEr5RKPR+U0gzpWE+ggLorxFejynvkSvj2tBJ8UsIqtZqng2xg==
+- SESSION_SECRET=3cWsjk7sOu8FH4zkLvn8j5OltsezQVOBfRSPFEr5RKPR+U0gzpWE+ggLorxFejynvkSvj2tBJ8UsIqtZqng2xg==
 
 # Server config
-PORT=3000
-FLASK_ENV=development
-FLASK_DEBUG=true
+  - PORT=3000
+  - FLASK_ENV=development
+  - FLASK_DEBUG=true
 
 # PostgreSQL database config
-  DATABASE_URL=postgresql://neondb_owner:npg_m0JGs4tCgoTe@ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech/neondb?sslmode=require
-  PGDATABASE=neondb
-  PGHOST=ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech
-  PGPORT=5432
-  PGUSER=neondb_owner
-  PGPASSWORD=npg_m0JGs4tCgoTe
+  - DATABASE_URL=postgresql://neondb_owner:npg_m0JGs4tCgoTe@ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech/neondb?sslmode=require
+  - PGDATABASE=neondb
+  - PGHOST=ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech
+  - PGPORT=5432
+  - PGUSER=neondb_owner
+  - PGPASSWORD=npg_m0JGs4tCgoTe
 
 **🏃‍♂ Step 5: Run the Application**
 # Build frontend and run everything (Production mode):
-  npm run build      # Builds the frontend
-  python app.py      # Starts the Flask backend
+  - npm run build      # Builds the frontend
+  - python app.py      # Starts the Flask backend
 
 # OR run in development mode:**
- npm start
+   npm start
 
 # OR run Flask directly:**
-  python app.py
+   python app.py
 
 **🌐 Access the Application**
   Development: http://localhost:3000
