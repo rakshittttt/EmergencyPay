@@ -224,7 +224,7 @@ MIT License - see LICENSE file for details
  **Push to the branch**: git push origin feature-name
  Open a pull request
 
-**📞 Support**
+# **📞 Support**
  # For issues and questions:
 
   Create an issue in the GitHub repository
