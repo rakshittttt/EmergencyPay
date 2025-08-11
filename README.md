@@ -21,55 +21,56 @@ EmergencyPay is a React-based web application that simulates an offline payment 
 - **Data Fetching**: TanStack Query for server state management
 - **Animations**: Framer Motion for smooth transitions
 
-# **🚀 Quick Start**
+<br>
+🚀 Quick Start
+<br>
+<br>
+🧱 Step 1:Clone the Repository:
 
-## **🧱 Step 1: Clone the Repository**
 git clone https://github.com/rabel798/EmergencyPay
+<br>
 cd emergencypay
 
-## **🐍 Step 2: Setup Python Environment**
-python -m venv myenv
-myenv\Scripts\activate         # For Windows
-### OR
+🐍 Step 2: Set Up Python Environment:<br>
+python -m venv myenv<br>
+myenv\Scripts\activate         # For Windows<br>
+#OR<br>
 source myenv/bin/activate      # For macOS/Linux
 
-## **📦 Step 3: Install Dependencies**
-### Install Node (Frontend) dependencies:
-npm install
+📦Step 3: Install Dependencies:<br>
+(a)🟢 Install Node (Frontend) dependencies by running:<br>
+npm install<br>
+(b)🐍 Install Python (Backend) dependencies by running:<br>
+pip install -r requirements.txt<br>
 
-### Install Python (Backend) dependencies:
-pip install -r requirements.txt
+⚙ Step 4: Create .env File:<br>
+In the left top corner, under the "Explorer" dropdown, you would see "EMERGENCYPAY" , hover there and then add a new file.
+name it ".env" and paste the follwoing: <br>
+#Flask session secret<br>
+SESSION_SECRET=3cWsjk7sOu8FH4zkLvn8j5OltsezQVOBfRSPFEr5RKPR+U0gzpWE+ggLorxFejynvkSvj2tBJ8UsIqtZqng2xg==<br>
 
-## **⚙ Step 4: Create .env File**
-In the project root directory, create a .env file and add the following environment variables:
+#Server config<br>
+PORT=3000<br>
+FLASK_ENV=development<br>
+FLASK_DEBUG=true<br>
 
-env
-### Flask session secret
-- SESSION_SECRET=3cWsjk7sOu8FH4zkLvn8j5OltsezQVOBfRSPFEr5RKPR+U0gzpWE+ggLorxFejynvkSvj2tBJ8UsIqtZqng2xg==
+#PostgreSQL database config<br>
+DATABASE_URL=postgresql://neondb_owner:npg_m0JGs4tCgoTe@ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech/neondb?sslmode=require<br>
+PGDATABASE=neondb<br>
+PGHOST=ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech<br>
+PGPORT=5432<br>
+PGUSER=neondb_owner<br>
+PGPASSWORD=npg_m0JGs4tCgoTe<br>
 
-### Server config
-  - PORT=3000
-  - FLASK_ENV=development
-  - FLASK_DEBUG=true
+#(Optional) Firebase config — only if using Firebase<br>
+VITE_FIREBASE_API_KEY=your_firebase_api_key<br>
+VITE_FIREBASE_PROJECT_ID=your_firebase_project_id<br>
+VITE_FIREBASE_APP_ID=your_firebase_app_id<br>
 
-### PostgreSQL database config
-  - DATABASE_URL=postgresql://neondb_owner:npg_m0JGs4tCgoTe@ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech/neondb?sslmode=require
-  - PGDATABASE=neondb
-  - PGHOST=ep-tiny-fog-a6wso9s2.us-west-2.aws.neon.tech
-  - PGPORT=5432
-  - PGUSER=neondb_owner
-  - PGPASSWORD=npg_m0JGs4tCgoTe
-
-## **🏃‍♂ Step 5: Run the Application**
-### Build frontend and run everything (Production mode):
-  - npm run build      # Builds the frontend
-  - python app.py      # Starts the Flask backend
-
-### OR run in development mode:
-   npm start
-
-### OR run Flask directly:
-   python app.py
+🏃‍♂ Step 5: Run the App:<br>
+✅Build frontend and run everything (Production mode):<br>
+npm run build      # Builds the frontend<br>
+python app.py      # Starts the Flask backend<br>
 
 # **🌐 Access the Application**
   - Development: http://localhost:3000
@@ -207,11 +208,11 @@ env
   - import os
   - import psycopg2
   - try:
-  -    conn = psycopg2.connect(os.environ['DATABASE_URL'])
-  -    print('✓ Database connection successful')
-  -    conn.close()
+  -     conn = psycopg2.connect(os.environ['DATABASE_URL'])
+  -     print('✓ Database connection successful')
+  -     conn.close()
   - except Exception as e:
-  -    print(f'✗ Database connection failed: {e}')
+  -     print(f'✗ Database connection failed: {e}')
   - "
 
 # **📄 License**
