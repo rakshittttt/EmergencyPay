@@ -173,65 +173,63 @@ env
 
 # **🚀 Deployment**
 ## Ready-to-Deploy Configuration
-  The application comes pre-configured with:
-  PostgreSQL database credentials (Neon cloud database)
-  Session security keys
-  Production-ready environment variables
+  - The application comes pre-configured with:
+  - PostgreSQL database credentials (Neon cloud database)
+  - Session security keys
+  -  Production-ready environment variables
   
 ## Deploy Steps
-  Environment variables are already configured
-  Build the frontend: npm run build
-  Start the Flask server: python app.py
-  Application will be accessible on the configured port
+  - Environment variables are already configured
+  - Build the frontend: npm run build
+  - Start the Flask server: python app.py
+  -  Application will be accessible on the configured port
   
 ## Database Information
-  Provider: Neon (Serverless PostgreSQL)
-  Region: US West 2 (AWS)
-  SSL: Required and configured
-  Connection Pooling: Enabled
+  - Provider: Neon (Serverless PostgreSQL)
+  - Region: US West 2 (AWS)
+  - SSL: Required and configured
+  - Connection Pooling: Enabled
 
 # **🔍 Troubleshooting**
 ## Common Issues
-  Database Connection: Pre-configured with Neon PostgreSQL - should work out of the box
-  Session Management: SESSION_SECRET is pre-configured
-  Port Conflicts: Change PORT environment variable if needed
-  SSL Issues: Database uses SSL by default (sslmode=require)
+  - Database Connection: Pre-configured with Neon PostgreSQL - should work out of the box
+  - Session Management: SESSION_SECRET is pre-configured
+  - Port Conflicts: Change PORT environment variable if needed
+  - SSL Issues: Database uses SSL by default (sslmode=require)
 
-# **Verify Setup**
-# Check environment variables:
+## **Verify Setup**
+### Check environment variables:
   printenv | grep -E "(SESSION_SECRET|DATABASE_URL|PG)"
 
-# Test database connection:
-  python -c 
-  "
-  import os
-  import psycopg2
-  try:
-      conn = psycopg2.connect(os.environ['DATABASE_URL'])
-      print('✓ Database connection successful')
-      conn.close()
-  except Exception as e:
-      print(f'✗ Database connection failed: {e}')
-  "
+### Test database connection:
+  - python -c 
+  - "
+  - import os
+  - import psycopg2
+  - try:
+  -     conn = psycopg2.connect(os.environ['DATABASE_URL'])
+  -     print('✓ Database connection successful')
+  -     conn.close()
+  - except Exception as e:
+  -     print(f'✗ Database connection failed: {e}')
+  - "
 
-**📄 License**
+# **📄 License**
 MIT License - see LICENSE file for details
 
-**🤝 Contributing**
- Fork the repository
- **Create a feature branch**: git checkout -b feature-name
- **Commit your changes**: git commit -m 'Add feature'
- **Push to the branch**: git push origin feature-name
- Open a pull request
+# **🤝 Contributing**
+ - Fork the repository
+ - **Create a feature branch**: git checkout -b feature-name
+ - **Commit your changes**: git commit -m 'Add feature'
+ - **Push to the branch**: git push origin feature-name
+ - Open a pull request
 
 # **📞 Support**
- # For issues and questions:
+ ## For issues and questions:
 
-  Create an issue in the GitHub repository
- 
-  Check the troubleshooting section above
-  
-  Verify environment variables are correctly set
+ - Create an issue in the GitHub repository
+ - Check the troubleshooting section above
+ - Verify environment variables are correctly set
 
 **Note: This is a simulation system for demonstration purposes. Do not use for actual financial transactions. The database credentials provided are for demonstration and should be rotated for production use.**
 
